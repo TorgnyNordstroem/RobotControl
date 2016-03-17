@@ -13,16 +13,19 @@ Task* task4 = NULL;
 Task* task5 = NULL; 
 Task* task6 = NULL;
 
+int StepSpeedKonst = 15; //Constant for calculating stepper speed in MotCtrl
+int StepTimeOn = 10; //Time step will be 'HIGH' in micro
+int MicroPerSecond = 1000000; //Microseconds in a second
+
 void setup() {
   Serial.begin(9600);
   Serial.println("Creating tasks...");
 
   task1 = scheduler->createTask(&Main, 60); //Creates a task associated to the 'Main' function with 60 bytes of stack memory.
-  task2 = scheduler->createTask(&func2, 60);
-  task3 = scheduler->createTask(&func3, 60); //Creates a task associated to the 'Main' function with 60 bytes of stack memory.
-  task4 = scheduler->createTask(&func4, 60);
-  task5 = scheduler->createTask(&func5, 60); //Creates a task associated to the 'Main' function with 60 bytes of stack memory.
-  task6 = scheduler->createTask(&func6, 60);
+  task2 = scheduler->createTask(&PosCalc, 60); //Creates a task associated to the 'PosCalc' (PositionCalculation of Stepper) function with 60 bytes of stack memory.
+  task3 = scheduler->createTask(&CooChg, 60); //Creates a task associated to the 'CooChg' (CoordinateChanger) function with 60 bytes of stack memory.
+  task4 = scheduler->createTask(&Comm, 60); //Creates a task associated to the 'Comm' (Communication) function with 60 bytes of stack memory.
+  task5 = scheduler->createTask(&MotCtrl, 60); //Creates a task associated to the 'MotCtrl' (MotorControl) function with 60 bytes of stack memory.
 
   Serial.println("Starting...");
   scheduler->start(); //Starts the scheduler. At this point you enter in a multi tasking context.
@@ -45,38 +48,26 @@ void Main()
   }
 }
 
-void func2()
+void PosCalc()
 {
-  task()->sleep(500);  
-
-  for(;;)
-  {    
-    OS48_ATOMIC_BLOCK
-    {
-      Serial.println("I am task 2");
-    }
-    task()->sleep(1000);    
-  }
+  task()->sleep(1000);  
 }
 
-void func3()
+void CooChg()
 {
-  
+  task()->sleep(1000);  
 }
 
-void func4()
+void Comm()
 {
-  
+  task()->sleep(1000);  
 }
 
-void func5()
+void MotCtrl()
 {
-  
-}
-
-void func6()
-{
-  
+  Message* MotPos = task()->waitNextMessage(PosCalc, MotPos);
+  Serial.println((char*) MotPos->getBody());
+  task()->sleep(1000);
 }
 
 void loop() {} //Useless now but you have to let it defined.
