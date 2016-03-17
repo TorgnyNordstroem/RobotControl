@@ -20,8 +20,8 @@ Task* task1 = NULL;
 Task* task2 = NULL;
 Task* task3 = NULL; 
 Task* task4 = NULL;
-Task* task5 = NULL; 
-Task* task6 = NULL;
+//Task* task5 = NULL; 
+//Task* task6 = NULL;
 
 
 int StartComplete = 0;
@@ -29,7 +29,6 @@ const int MilliPerSecond = 1000;
 
 //Used Pins
 const int PinInterrupt[3] = {19, 20, 21}; //Pins for interrupt
-const int PinStepperSet[2] = {26, 27}; //Pins for stepper settings
 const int PinStepperDir[3] = {30, 34, 38}; //Pins for stepper direction
 const int PinStepperStep[3] = {31, 35, 39}; //Pins for stepper signals
 const int PinServoClaw[2] = {42, 43}; //Pins for the claw
@@ -42,7 +41,7 @@ volatile int StepperStepTime[3]; //Time inbetween each step
 
 volatile int CoordinatesTarget[2] = {0, 0}; //Coordinates (x, y) in mm (input from user)
 
-volatile int RealAnglesTarget[5] = {0, 0, 0, 0, 0}; //The angle target: x, y, z, a, c
+volatile int RealAnglesTarget[5] = {0, 0, 0, 90, 90}; //The angle target: x, y, z, a, c
 
 volatile int StepCoordinatesTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
 volatile int StepCoordinatesIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
@@ -72,10 +71,6 @@ void setup() {
   {
     pinMode(PinInterrupt[i], INPUT);
   }
-  for (i = 0; i <= 2; i++)
-  {
-    pinMode(PinStepperSet[i], OUTPUT);
-  }
   for (i = 0; i <= 3; i++)
   {
     pinMode(PinStepperDir[i], OUTPUT);
@@ -90,12 +85,12 @@ void setup() {
   }
 
   Serial.println("Creating tasks...");
-  task1 = scheduler -> createTask(&SetServo, 10);
-  task2 = scheduler -> createTask(&MotCtrlX, 50);
-  task3 = scheduler -> createTask(&MotCtrlY, 50);
-  task4 = scheduler -> createTask(&MotCtrlZ, 50);
+  //task1 = scheduler -> createTask(&SetServo, 2);
+  task1 = scheduler -> createTask(&MotCtrlX, 18);
+  task2 = scheduler -> createTask(&MotCtrlY, 18);
+  task3 = scheduler -> createTask(&MotCtrlZ, 18);
   //task5 = scheduler -> createTask(&StepperPosCalc, 50);
-  task6 = scheduler -> createTask(&StepCooChg, 50);
+  task4 = scheduler -> createTask(&StepCooChg, 18);
   
   scheduler -> setStackOverflowFnc(&fncSO);
   scheduler -> setSchedulingPolicy(SchPolicyIntelligent);
@@ -124,12 +119,12 @@ void setup() {
 
 void StepCooChg()
 {
-  digitalWrite(PinStepperSet[0], HIGH);
-  digitalWrite(PinStepperSet[1], HIGH);
   for(;;)
   {
-    ++StepCoordinatesTarget[0];
+    StepCoordinatesTarget[0] += 5;
     Serial.println(StepCoordinatesTarget[0]);
+    Serial.println(StepCoordinatesIs[0]);
+    delay(2);
   }
 }
 
@@ -139,8 +134,10 @@ void SetServo()
 {
   for(;;)
   {
-    ServoAngle.write(RealAnglesTarget[4]); //Controls PWM output using "Servo" library
-    ServoClaw.write(RealAnglesTarget[5]); //Controls PWM output using "Servo" library
+    ServoAngle.write(RealAnglesTarget[3]); //Controls PWM output using "Servo" library
+    Serial.println(RealAnglesTarget[3]);
+    ServoClaw.write(RealAnglesTarget[4]); //Controls PWM output using "Servo" library
+    Serial.println(RealAnglesTarget[4]);
   }
 }
 
@@ -197,7 +194,7 @@ void MotDir()
         StepCoordinatesAdd[2] = -1;
       }
     }
-    task() -> sleep(10);
+    delay(10);
   }
 }
 
@@ -213,8 +210,8 @@ void MotCtrlX()
       {
         StepCoordinatesIs[0] += StepCoordinatesAdd[0];
       }
+      delay(10);
     }
-    task() -> sleep(10);
   }
 }
 
@@ -230,7 +227,7 @@ void MotCtrlY()
         StepCoordinatesIs[1] += StepCoordinatesAdd[1];
       }
     }
-    task() -> sleep(10);
+    delay(50);
   }
 }
 
@@ -246,7 +243,7 @@ void MotCtrlZ()
         StepCoordinatesIs[2] += StepCoordinatesAdd[2];
       }
     }
-    task() -> sleep(10);
+    delay(50);
   }
 }
 
@@ -285,9 +282,9 @@ void AngleCalc()
 void MotPulseX() 
 {
   digitalWrite(PinStepperStep[0], HIGH);
-  task()->sleep(StepperStepTime[0]);
+  delay(StepperStepTime[0]);
   digitalWrite(PinStepperStep[0], LOW);
-  task()->sleep(StepperStepTime[0]);
+  delay(StepperStepTime[0]);
 }
 
 // Pulses y-axis Stepper once
