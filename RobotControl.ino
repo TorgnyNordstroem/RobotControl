@@ -15,8 +15,9 @@ Task* task6 = NULL;
 
 int StepSpeedKonst = 15; //Constant for calculating stepper speed in MotCtrl
 int MilliPerSecond = 1000; //Microseconds in a second
-int StepCoordinatesIs[5] = {10, 10, 10, 10, 10};
-int StepCoordinatesShould[5] = {10, 10, 10, 10, 10};
+int RealCoordinatesTarget[5];
+int StepCoordinatesIs[5] = {0, 0, 0, 0, 0};
+int StepCoordinatesTarget[5] = {0, 0, 0, 0, 0};
 int CoordDiff[3] = {0, 0, 0};
 
 int StepperPinsDir[3] = {32, 36, 40}; //Stepper direction pins (x, y, z)
@@ -25,7 +26,7 @@ int StepperStepPerSecond[3] = {500, 500, 500};
 int StepperTime[3];
 
 int i;
-//data_string : Communication string; Build: speed/x/y/z/a/b;     or Coordinates: time/x/y/z/a/b
+//data_string : Communication string; Build: g/speed/x/y/z/a/b;     or Coordinates: time/x/y/z/a/b
 
 void setup() {
   Serial.begin(9600);
@@ -99,7 +100,7 @@ void MotPulseX()
 {
   for(;;)
   {
-    while(StepCoordinatesShould[0] > StepCoordinatesIs[0])
+    while(StepCoordinatesTarget[0] > StepCoordinatesIs[0])
     {
       digitalWrite(StepperPinsDir[0], HIGH);
       digitalWrite(StepperPinsStep[0], HIGH);
@@ -109,7 +110,7 @@ void MotPulseX()
 
       ++StepCoordinatesIs[0];
     }
-    while(StepCoordinatesShould[0] < StepCoordinatesIs[0])
+    while(StepCoordinatesTarget[0] < StepCoordinatesIs[0])
     {
       digitalWrite(StepperPinsDir[0], LOW);
       digitalWrite(StepperPinsStep[0], HIGH);
@@ -127,7 +128,7 @@ void MotPulseY()
 {
   for(;;)
   {
-    while(StepCoordinatesShould[1] > StepCoordinatesIs[1])
+    while(StepCoordinatesTarget[1] > StepCoordinatesIs[1])
     {
       digitalWrite(StepperPinsDir[1], HIGH);
       digitalWrite(StepperPinsStep[1], HIGH);
@@ -137,7 +138,7 @@ void MotPulseY()
 
       ++StepCoordinatesIs[1];
     }
-    while(StepCoordinatesShould[1] < StepCoordinatesIs[1])
+    while(StepCoordinatesTarget[1] < StepCoordinatesIs[1])
     {
       digitalWrite(StepperPinsDir[1], LOW);
       digitalWrite(StepperPinsStep[1], HIGH);
@@ -155,7 +156,7 @@ void MotPulseZ()
 {
   for(;;)
   {
-    while(StepCoordinatesShould[2] > StepCoordinatesIs[2])
+    while(StepCoordinatesTarget[2] > StepCoordinatesIs[2])
     {
       digitalWrite(StepperPinsDir[2], HIGH);
       digitalWrite(StepperPinsStep[2], HIGH);
@@ -165,7 +166,7 @@ void MotPulseZ()
 
       ++StepCoordinatesIs[2];
     }
-    while(StepCoordinatesShould[2] < StepCoordinatesIs[2])
+    while(StepCoordinatesTarget[2] < StepCoordinatesIs[2])
     {
       digitalWrite(StepperPinsDir[2], LOW);
       digitalWrite(StepperPinsStep[2], HIGH);
