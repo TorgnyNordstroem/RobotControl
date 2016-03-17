@@ -33,18 +33,18 @@ int PinStepperDir[3] = {30, 34, 38};
 int PinStepperStep[3] = {31, 35, 39};
 int PinServoClaw[2] = {42, 43};
 
-int StepperStepTotal = 200;
-int StepperMicrosteps = 16;
-int StepperStepPerSecond[3] = {500, 500, 500};
-int StepperStepAngle[3];
-int StepperStepTime[3];
+int StepperStepTotal = 200; //Number of full steps
+int StepperMicrosteps = 16; //Microstepping multiplier 
+int StepperStepPerSecond[3] = {500, 500, 500}; //max. amount of steps per second
+int StepperStepAngle[3]; //Angle in ° per step
+int StepperStepTime[3]; //Time inbetween each step
 
 int CoordinatesTarget[3] = {0, 0, 0};
 
-int RealAnglesTarget[5] = {0, 0, 0, 0, 0}; //x, y, z, a, c
+int RealAnglesTarget[5] = {0, 0, 0, 0, 0}; //The angle target: x, y, z, a, c
 
-int StepCoordinatesTarget[3] = {0, 0, 0};
-int StepCoordinatesIs[3] = {0, 0, 0};
+int StepCoordinatesTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
+int StepCoordinatesIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
 
 Servo ServoAngle;
 Servo ServoClaw;
@@ -57,7 +57,7 @@ int C;
 int Lx;
 int Ly;
 
-int i;
+int i; //variable used in loops
 //data_string : Communication string; Build: g/speed/x/y/z/a/b;     or Coordinates: time/x/y/z/a/b
 
 
@@ -211,9 +211,9 @@ void AngleCalc()
 {
   for(;;)
   {
-    C = sqrt(pow(RealCoordinatesTarget[0], 2) + pow(RealCoordinatesTarget[1], 2));
-    beta = -(180/PI)*acos((pow(RealCoordinatesTarget[0], 2)+pow(RealCoordinatesTarget[1], 2)-(pow(Lx, 2)+pow(Ly, 2)))/(2*Lx*Ly));
-    gamma = (180/PI)*acos(RealCoordinatesTarget[0]/C);
+    C = sqrt(pow(CoordinatesTarget[0], 2) + pow(CoordinatesTarget[1], 2));
+    beta = -(180/PI)*acos((pow(CoordinatesTarget[0], 2)+pow(CoordinatesTarget[1], 2)-(pow(Lx, 2)+pow(Ly, 2)))/(2*Lx*Ly));
+    gamma = (180/PI)*acos(CoordinatesTarget[0]/C);
     delta = (180/PI)*acos((pow(Lx, 2)-pow(Ly, 2)+pow(C, 2))/(2*Lx*C));
     alpha = gamma + delta;
   }
