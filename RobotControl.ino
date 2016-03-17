@@ -1,4 +1,12 @@
-#include <Servo.h>
+//Robot arm Arduino controller
+//Programmed by T. Nordström
+//Version 0.2.0
+
+//This programm controlles an robot arm using an Arduino Mega
+//Please note that it requires the correct hardware in order to function.
+//Hardware can be built using the parts documented in the TGM diploma project "Roboter Arm"
+
+#include <Servo.h>//Provides support for servo PWM control
 #include <os48.h> //The only file you have to include
 #include <math.h> //Provides mathematical functions
 
@@ -17,6 +25,7 @@ Task* task6 = NULL;
 
 
 int StartComplete = 0;
+int MilliPerSecond = 1000;
 
 int PinInterrupt[3] = {19, 20, 21};
 int PinStepperSet[2] = {26, 27};
@@ -24,28 +33,21 @@ int PinStepperDir[3] = {30, 34, 38};
 int PinStepperStep[3] = {31, 35, 39};
 int PinServoClaw[2] = {42, 43};
 
+int StepperStepTotal = 200;
+int StepperMicrosteps = 16;
+int StepperStepPerSecond[3] = {500, 500, 500};
+int StepperStepAngle[3];
+int StepperStepTime[3];
 
+int CoordinatesTarget[3] = {0, 0, 0};
 
+int RealAnglesTarget[5] = {0, 0, 0, 0, 0}; //x, y, z, a, c
 
-int StartComplete = 0;
-int InterruptPins[3] = {16, 18, 20};
+int StepCoordinatesTarget[3] = {0, 0, 0};
+int StepCoordinatesIs[3] = {0, 0, 0};
 
 Servo ServoAngle;
 Servo ServoClaw;
-
-int MilliPerSecond = 1000; //Microseconds in a second
-volatile int RealCoordinatesTarget[5] = {0, 0, 0, 0, 0}; //Real-world Coordinates in {mm; mm; °; °; mm}
-int RealAngleTarget[5]; //Real-world angles in °
-volatile int StepCoordinatesIs[3] = {0, 0, 0}; //Stepper coordinates in steps from origin.
-volatile int StepCoordinatesTarget[5] = {0, 0, 0, 0, 0}; //Stepper & Servo target coordinates in {stp, stp, stp, °, °}
-
-int StepperStepTotal = 200;
-int StepperMicrosteps = 16;
-int StepperStepAngle;
-int StepperPinsDir[3] = {32, 36, 40}; //Stepper direction pins (x, y, z)
-int StepperPinsStep[3] = {33, 37, 41}; //Stepper step pins (x, y, z)
-int StepperStepPerSecond[3] = {500, 500, 500};
-int StepperTime[3];
 
 int alpha;
 int beta;
@@ -58,43 +60,50 @@ int Ly;
 int i;
 //data_string : Communication string; Build: g/speed/x/y/z/a/b;     or Coordinates: time/x/y/z/a/b
 
+
 void setup() {
-  
+
   Serial.begin(9600);
+  
+  Serial.println("Setting IO-Ports...");
+  for (i = 0; i <= 3; i++)
+  {
+    pinMode(PinInterrupt[i], INPUT);
+  }
+  for (i = 0; i <= 2; i++)
+  {
+    pinMode(PinStepperSet[i], OUTPUT);
+  }
+  for (i = 0; i <= 3; i++)
+  {
+    pinMode(PinStepperDir[i], OUTPUT);
+  }
+  for (i = 0; i <= 3; i++)
+  {
+    pinMode(PinStepperStep[i], OUTPUT);
+  }
+  for (i = 0; i <= 2; i++)
+  {
+    pinMode(PinServoClaw[i], OUTPUT);
+  }
+
   Serial.println("Creating tasks...");
-  task1 = scheduler->createTask(&Main, 60); //Creates a task associated to the 'Main' function with 60 bytes of stack memory.
-  task2 = scheduler->createTask(&PosCalc, 60); //Creates a task associated to the 'PosCalc' (PositionCalculation of Stepper) function with 60 bytes of stack memory.
-  task3 = scheduler->createTask(&MotPulseX, 60); //Creates a task associated to the 'MotPulseX' (Stepper controller x-axis) function with 60 bytes of stack memory.
-  task4 = scheduler->createTask(&MotPulseY, 60); //Creates a task associated to the 'MotPulseY' (Stepper controller y-axis) function with 60 bytes of stack memory.
-  task5 = scheduler->createTask(&MotPulseZ, 60); //Creates a task associated to the 'MotPulseZ' (Stepper controller z-axis) function with 60 bytes of stack memory.
-  task6 = scheduler->createTask(&AngleCalc, 60);
+  task1 = scheduler -> createTask(&SetServo, 10);
+  task2 = scheduler -> createTask(&MotCtrlX, 50);
+  task3 = scheduler -> createTask(&MotCtrlY, 50);
+  task4 = scheduler -> createTask(&MotCtrlZ, 50);
+  task5 = scheduler -> createTask(&StepperPosCalc, 50);
 
   Serial.println("Calculating initial stepper settings...");
-  for (i = 0; i <= 3; i++);
-  {
-    StepperTime[i] = ((MilliPerSecond / StepperStepPerSecond[i]) / 2);
-  }
-  StepperStepAngle = 360/(StepperStepTotal*StepperMicrosteps);
-
-  Serial.println("Setting IO-Ports...");
-  for(i = 0; i <= 3; i++) //Set pinmode of stepper motor pins (Dir, Step) to OUTPUT
-  {
-    pinMode(StepperPinsDir[i], OUTPUT);
-    pinMode(StepperPinsStep[i], OUTPUT);
-  }
-  for(i = 0; i <= 3; i++) //Set pinmode of positioning buttons to INPUT
-  {
-    pinMode(InterruptPins[i], INPUT);
-  }
-
+  
   Serial.println("Attaching servos");
   ServoAngle.attach(42);
   ServoClaw.attach(46);
 
   Serial.println("Attaching interrupts...");
-  attachInterrupt(digitalPinToInterrupt(InterruptPins[0]), ResetCoor0, FALLING); //ResetCoor0 is executed when InterruptPins[0] receives a falling edge signal
-  attachInterrupt(digitalPinToInterrupt(InterruptPins[1]), ResetCoor1, FALLING); //ResetCoor1 is executed when InterruptPins[1] receives a falling edge signal
-  attachInterrupt(digitalPinToInterrupt(InterruptPins[2]), ResetCoor2, FALLING); //ResetCoor2 is executed when InterruptPins[2] receives a falling edge signal
+  attachInterrupt(digitalPinToInterrupt(PinInterrupt[0]), ResetCoorX, FALLING); //ResetCoor0 is executed when InterruptPins[0] receives a falling edge signal
+  attachInterrupt(digitalPinToInterrupt(PinInterrupt[1]), ResetCoorY, FALLING); //ResetCoor1 is executed when InterruptPins[1] receives a falling edge signal
+  attachInterrupt(digitalPinToInterrupt(PinInterrupt[2]), ResetCoorZ, FALLING); //ResetCoor2 is executed when InterruptPins[2] receives a falling edge signal
   
 
   Serial.println("Starting...");
@@ -105,9 +114,98 @@ void setup() {
   //Nothing will be executed here
 }
 
-void Main()
+
+//Sets servo positions based on RealAnglesTarget
+void SetServo()
 {
+  for(;;)
+  {
+    ServoAngle.write(RealAnglesTarget[4]); //Controls PWM output using "Servo" library
+    ServoClaw.write(RealAnglesTarget[5]); //Controls PWM output using "Servo" library
+  }
 }
+
+void StepperPosCalc()
+{
+  for(;;)
+  {    
+    StepCoordinatesTarget[0] = RealAnglesTarget[0]/StepperStepAngle[0];
+    StepCoordinatesTarget[1] = RealAnglesTarget[1]/StepperStepAngle[1];
+    StepCoordinatesTarget[2] = RealAnglesTarget[2]/StepperStepAngle[2];
+  }
+}
+
+void MotCtrlX()
+{
+  for(;;)
+  {
+    while(StepCoordinatesTarget[0] > StepCoordinatesIs[0])
+    {
+      digitalWrite(PinStepperDir[0], HIGH);
+      MotPulseX();
+
+      ++StepCoordinatesIs[0];
+    }
+    while(StepCoordinatesTarget[0] < StepCoordinatesIs[0])
+    {
+      digitalWrite(PinStepperDir[0], LOW);
+      MotPulseX();
+
+      --StepCoordinatesIs[0];
+    }
+    task()->sleep(50);
+  }
+}
+
+void MotCtrlY()
+{
+  for(;;)
+  {
+    while(StepCoordinatesTarget[1] > StepCoordinatesIs[1])
+    {
+      digitalWrite(PinStepperDir[1], HIGH);
+      MotPulseY();
+
+      ++StepCoordinatesIs[1];
+    }
+    while(StepCoordinatesTarget[1] < StepCoordinatesIs[1])
+    {
+      digitalWrite(PinStepperDir[1], LOW);
+      MotPulseY();
+
+      --StepCoordinatesIs[1];
+    }
+    task()->sleep(50);
+  }
+}
+
+void MotCtrlZ()
+{
+  for(;;)
+  {
+    while(StepCoordinatesTarget[2] > StepCoordinatesIs[2])
+    {
+      digitalWrite(PinStepperDir[2], HIGH);
+      MotPulseZ();
+
+      ++StepCoordinatesIs[2];
+    }
+    while(StepCoordinatesTarget[2] < StepCoordinatesIs[2])
+    {
+      digitalWrite(PinStepperDir[2], LOW);
+      MotPulseZ();
+
+      --StepCoordinatesIs[2];
+    }
+    task()->sleep(50);
+  }
+}
+
+
+
+
+
+
 
 void AngleCalc()
 {
@@ -121,130 +219,64 @@ void AngleCalc()
   }
 }
 
-void PosCalc()
+
+
+
+
+//From this point on, only non-threads exists
+
+// Pulses x-axis Stepper once
+void MotPulseX() 
 {
-  for(;;)
-  {    
-    StepCoordinatesTarget[0] = RealAngleTarget[0]/StepperStepAngle;
-    StepCoordinatesTarget[1] = RealAngleTarget[1]/StepperStepAngle;
-    StepCoordinatesTarget[2] = RealAngleTarget[2]/StepperStepAngle;
-    ServoAngle.write(RealAngleTarget[4]);
-  }
+  digitalWrite(PinStepperStep[0], HIGH);
+  task()->sleep(StepperStepTime[0]);
+  digitalWrite(PinStepperStep[0], LOW);
+  task()->sleep(StepperStepTime[0]);
 }
 
-void Comm()
-{ 
-  task()->suspend();
-}
-
-void MotPulseX()
-{ 
-  for(;;)
-  {
-    while(StepCoordinatesTarget[0] > StepCoordinatesIs[0])
-    {
-      digitalWrite(StepperPinsDir[0], HIGH);
-      digitalWrite(StepperPinsStep[0], HIGH);
-      task()->sleep(StepperTime[0]);
-      digitalWrite(StepperPinsStep[0], LOW);
-      task()->sleep(StepperTime[0]);
-
-      ++StepCoordinatesIs[0];
-    }
-    while(StepCoordinatesTarget[0] < StepCoordinatesIs[0])
-    {
-      digitalWrite(StepperPinsDir[0], LOW);
-      digitalWrite(StepperPinsStep[0], HIGH);
-      task()->sleep(StepperTime[0]);
-      digitalWrite(StepperPinsStep[0], LOW);
-      task()->sleep(StepperTime[0]);
-
-      --StepCoordinatesIs[0];
-    }
-    task()->sleep(50);
-  }
-}
-
+// Pulses y-axis Stepper once
 void MotPulseY()
 {
-  for(;;)
-  {
-    while(StepCoordinatesTarget[1] > StepCoordinatesIs[1])
-    {
-      digitalWrite(StepperPinsDir[1], HIGH);
-      digitalWrite(StepperPinsStep[1], HIGH);
-      task()->sleep(StepperTime[1]);
-      digitalWrite(StepperPinsStep[1], LOW);
-      task()->sleep(StepperTime[1]);
-
-      ++StepCoordinatesIs[1];
-    }
-    while(StepCoordinatesTarget[1] < StepCoordinatesIs[1])
-    {
-      digitalWrite(StepperPinsDir[1], LOW);
-      digitalWrite(StepperPinsStep[1], HIGH);
-      task()->sleep(StepperTime[1]);
-      digitalWrite(StepperPinsStep[1], LOW);
-      task()->sleep(StepperTime[1]);
-
-      --StepCoordinatesIs[1];
-    }
-    task()->sleep(50);
-  }
+  digitalWrite(PinStepperStep[1], HIGH);
+  task()->sleep(StepperStepTime[1]);
+  digitalWrite(PinStepperStep[1], LOW);
+  task()->sleep(StepperStepTime[1]);
 }
 
+// Pulses z-axis Stepper once
 void MotPulseZ()
 {
-  while (StartComplete = 0)
-  {
-    task()->sleep(1000);
-  }
-  
-  for(;;)
-  {
-    while(StepCoordinatesTarget[2] > StepCoordinatesIs[2])
-    {
-      digitalWrite(StepperPinsDir[2], HIGH);
-      digitalWrite(StepperPinsStep[2], HIGH);
-      task()->sleep(StepperTime[2]);
-      digitalWrite(StepperPinsStep[2], LOW);
-      task()->sleep(StepperTime[2]);
-
-      ++StepCoordinatesIs[2];
-    }
-    while(StepCoordinatesTarget[2] < StepCoordinatesIs[2])
-    {
-      digitalWrite(StepperPinsDir[2], LOW);
-      digitalWrite(StepperPinsStep[2], HIGH);
-      task()->sleep(StepperTime[2]);
-      digitalWrite(StepperPinsStep[2], LOW);
-      task()->sleep(StepperTime[2]);
-
-      --StepCoordinatesIs[2];
-    }
-    task()->sleep(50);
-  }
+  digitalWrite(PinStepperStep[2], HIGH);
+  task()->sleep(StepperStepTime[2]);
+  digitalWrite(PinStepperStep[2], LOW);
+  task()->sleep(StepperStepTime[2]);
 }
 
-void ResetCoor0()
+
+//Interrupts are below this point
+
+//Resets all coordinates of the x-axis
+void ResetCoorX()
 {
   StepCoordinatesIs[0] = 0;
   StepCoordinatesTarget[0] = 0;
-  RealCoordinatesTarget[0] = 0;
+  RealAnglesTarget[0] = 0;
 }
 
-void ResetCoor1()
+//Resets all coordinates of the y-axis
+void ResetCoorY()
 {
   StepCoordinatesIs[1] = 0;
   StepCoordinatesTarget[1] = 0;
-  RealCoordinatesTarget[1] = 0;
+  RealAnglesTarget[1] = 0;
 }
 
-void ResetCoor2()
+//Resets all coordinates of the z-axis
+void ResetCoorZ()
 {
   StepCoordinatesIs[2] = 0;
   StepCoordinatesTarget[2] = 0;
-  RealCoordinatesTarget[2] = 0;
+  RealAnglesTarget[2] = 0;
 }
 
 
