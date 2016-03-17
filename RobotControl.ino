@@ -18,10 +18,6 @@ Scheduler* scheduler = Scheduler::get(); //Get the instance
 //Declare the task pointers as global vars to use them in the task functions.
 Task* task1 = NULL; 
 Task* task2 = NULL;
-Task* task3 = NULL; 
-Task* task4 = NULL;
-//Task* task5 = NULL; 
-//Task* task6 = NULL;
 
 
 int StartComplete = 0;
@@ -85,12 +81,8 @@ void setup() {
   }
 
   Serial.println("Creating tasks...");
-  //task1 = scheduler -> createTask(&SetServo, 2);
-  task1 = scheduler -> createTask(&MotCtrlX, 18);
-  task2 = scheduler -> createTask(&MotCtrlY, 18);
-  task3 = scheduler -> createTask(&MotCtrlZ, 18);
-  //task5 = scheduler -> createTask(&StepperPosCalc, 50);
-  task4 = scheduler -> createTask(&StepCooChg, 18);
+  task1 = scheduler -> createTask(&MotCtrlX, 100, PrHigh);
+  task2 = scheduler -> createTask(&StepCooChg, 100, PrLow);
   
   scheduler -> setStackOverflowFnc(&fncSO);
   scheduler -> setSchedulingPolicy(SchPolicyIntelligent);
@@ -103,13 +95,12 @@ void setup() {
 
   Serial.println("Attaching interrupts...");
   attachInterrupt(digitalPinToInterrupt(PinInterrupt[0]), ResetCoorX, FALLING); //ResetCoor0 is executed when InterruptPins[0] receives a falling edge signal
-  attachInterrupt(digitalPinToInterrupt(PinInterrupt[1]), ResetCoorY, FALLING); //ResetCoor1 is executed when InterruptPins[1] receives a falling edge signal
-  attachInterrupt(digitalPinToInterrupt(PinInterrupt[2]), ResetCoorZ, FALLING); //ResetCoor2 is executed when InterruptPins[2] receives a falling edge signal
   
 
   Serial.println("Starting...");
   delay(50);
   
+        Serial.println(millis());
   scheduler->start(); //Starts the scheduler. At this point you enter in a multi tasking context.
 
   //...
@@ -121,80 +112,9 @@ void StepCooChg()
 {
   for(;;)
   {
-    StepCoordinatesTarget[0] += 5;
+    StepCoordinatesTarget[0] = 1200;
     Serial.println(StepCoordinatesTarget[0]);
-    Serial.println(StepCoordinatesIs[0]);
-    delay(2);
-  }
-}
-
-
-//Sets servo positions based on RealAnglesTarget
-void SetServo()
-{
-  for(;;)
-  {
-    ServoAngle.write(RealAnglesTarget[3]); //Controls PWM output using "Servo" library
-    Serial.println(RealAnglesTarget[3]);
-    ServoClaw.write(RealAnglesTarget[4]); //Controls PWM output using "Servo" library
-    Serial.println(RealAnglesTarget[4]);
-  }
-}
-
-
-void MotDir()
-{
-  for(;;)
-  {
-    if (StepCoordinatesTarget[0] < 0)
-    {
-      digitalWrite(PinStepperDir[0], LOW);
-      OS48_ATOMIC_BLOCK
-      {
-        StepCoordinatesAdd[0] = 1;
-      }
-    }
-    else
-    {
-      digitalWrite(PinStepperDir[0], HIGH);
-      OS48_ATOMIC_BLOCK
-      {
-        StepCoordinatesAdd[0] = -1;
-      }
-    }
-    if (StepCoordinatesTarget[1] < 0)
-    {
-      digitalWrite(PinStepperDir[1], LOW);
-      OS48_ATOMIC_BLOCK
-      {
-        StepCoordinatesAdd[1] = 1;
-      }
-    }
-    else
-    {
-      digitalWrite(PinStepperDir[1], HIGH);
-      OS48_ATOMIC_BLOCK
-      {
-        StepCoordinatesAdd[1] = -1;
-      }
-    }
-    if (StepCoordinatesTarget[2] < 0)
-    {
-      digitalWrite(PinStepperDir[2], LOW);
-      OS48_ATOMIC_BLOCK
-      {
-        StepCoordinatesAdd[2] = 1;
-      }
-    }
-    else
-    {
-      digitalWrite(PinStepperDir[2], HIGH);
-      OS48_ATOMIC_BLOCK
-      {
-        StepCoordinatesAdd[2] = -1;
-      }
-    }
-    delay(10);
+    task() -> sleep(30000);
   }
 }
 
@@ -205,105 +125,23 @@ void MotCtrlX()
   {
     while(StepCoordinatesTarget[0] != StepCoordinatesIs[0])
     {
-      MotPulseX();
+      digitalWrite(PinStepperStep[0], HIGH);
+      delay(1);
+      digitalWrite(PinStepperStep[0], LOW);
+      delay(1);
+      
       OS48_ATOMIC_BLOCK
       {
         StepCoordinatesIs[0] += StepCoordinatesAdd[0];
-      }
-      delay(10);
-    }
-  }
-}
-
-void MotCtrlY()
-{
-  for(;;)
-  {
-    while(StepCoordinatesTarget[1] != StepCoordinatesIs[1])
-    {
-      MotPulseY();
-      OS48_ATOMIC_BLOCK
-      {
-        StepCoordinatesIs[1] += StepCoordinatesAdd[1];
+        Serial.println(StepCoordinatesIs[0]);
       }
     }
-    delay(50);
-  }
-}
-
-void MotCtrlZ()
-{
-  for(;;)
-  {
-    while(StepCoordinatesTarget[2] != StepCoordinatesIs[2])
-    {
-      MotPulseZ();
-      OS48_ATOMIC_BLOCK
-      {
-        StepCoordinatesIs[2] += StepCoordinatesAdd[2];
-      }
-    }
-    delay(50);
+    task() -> sleep(10);
   }
 }
 
 
 
-
-
-
-
-void AngleCalc()
-{
-  for(;;)
-  {
-    C = sqrt(pow(CoordinatesTarget[0], 2) + pow(CoordinatesTarget[1], 2));
-    beta = -(180/PI)*acos((pow(CoordinatesTarget[0], 2)+pow(CoordinatesTarget[1], 2)-(pow(Lx, 2)+pow(Ly, 2)))/(2*Lx*Ly));
-    gamma = (180/PI)*acos(CoordinatesTarget[0]/C);
-    delta = (180/PI)*acos((pow(Lx, 2)-pow(Ly, 2)+pow(C, 2))/(2*Lx*C));
-    alpha = gamma + delta;
-
-    OS48_ATOMIC_BLOCK
-    {
-      StepCoordinatesTarget[0] = RealAnglesTarget[0]/StepperStepAngle[0];
-      StepCoordinatesTarget[1] = RealAnglesTarget[1]/StepperStepAngle[1];
-      StepCoordinatesTarget[2] = RealAnglesTarget[2]/StepperStepAngle[2];
-    }
-  }
-}
-
-
-
-
-
-//From this point on, only non-threads exists
-
-// Pulses x-axis Stepper once
-void MotPulseX() 
-{
-  digitalWrite(PinStepperStep[0], HIGH);
-  delay(StepperStepTime[0]);
-  digitalWrite(PinStepperStep[0], LOW);
-  delay(StepperStepTime[0]);
-}
-
-// Pulses y-axis Stepper once
-void MotPulseY()
-{
-  digitalWrite(PinStepperStep[1], HIGH);
-  task()->sleep(StepperStepTime[1]);
-  digitalWrite(PinStepperStep[1], LOW);
-  task()->sleep(StepperStepTime[1]);
-}
-
-// Pulses z-axis Stepper once
-void MotPulseZ()
-{
-  digitalWrite(PinStepperStep[2], HIGH);
-  task()->sleep(StepperStepTime[2]);
-  digitalWrite(PinStepperStep[2], LOW);
-  task()->sleep(StepperStepTime[2]);
-}
 
 
 //Interrupts are below this point
@@ -314,22 +152,6 @@ void ResetCoorX()
   StepCoordinatesIs[0] = 0;
   StepCoordinatesTarget[0] = 0;
   RealAnglesTarget[0] = 0;
-}
-
-//Resets all coordinates of the y-axis
-void ResetCoorY()
-{
-  StepCoordinatesIs[1] = 0;
-  StepCoordinatesTarget[1] = 0;
-  RealAnglesTarget[1] = 0;
-}
-
-//Resets all coordinates of the z-axis
-void ResetCoorZ()
-{
-  StepCoordinatesIs[2] = 0;
-  StepCoordinatesTarget[2] = 0;
-  RealAnglesTarget[2] = 0;
 }
 
 void fncSO()
