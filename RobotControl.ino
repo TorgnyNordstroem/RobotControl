@@ -27,11 +27,12 @@ Task* task6 = NULL;
 int StartComplete = 0;
 int MilliPerSecond = 1000;
 
-int PinInterrupt[3] = {19, 20, 21};
-int PinStepperSet[2] = {26, 27};
-int PinStepperDir[3] = {30, 34, 38};
-int PinStepperStep[3] = {31, 35, 39};
-int PinServoClaw[2] = {42, 43};
+//Used Pins
+int PinInterrupt[3] = {19, 20, 21}; //Pins for interrupt
+int PinStepperSet[2] = {26, 27}; //Pins for stepper settings
+int PinStepperDir[3] = {30, 34, 38}; //Pins for stepper direction
+int PinStepperStep[3] = {31, 35, 39}; //Pins for stepper signals
+int PinServoClaw[2] = {42, 43}; //Pins for the claw
 
 int StepperStepTotal = 200; //Number of full steps
 int StepperMicrosteps = 16; //Microstepping multiplier 
@@ -39,15 +40,15 @@ int StepperStepPerSecond[3] = {500, 500, 500}; //max. amount of steps per second
 int StepperStepAngle[3]; //Angle in ° per step
 int StepperStepTime[3]; //Time inbetween each step
 
-int CoordinatesTarget[3] = {0, 0, 0};
+volatile int CoordinatesTarget[2] = {0, 0}; //Coordinates (x, y) in mm (input from user)
 
-int RealAnglesTarget[5] = {0, 0, 0, 0, 0}; //The angle target: x, y, z, a, c
+volatile int RealAnglesTarget[5] = {0, 0, 0, 0, 0}; //The angle target: x, y, z, a, c
 
-int StepCoordinatesTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
-int StepCoordinatesIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
+volatile int StepCoordinatesTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
+volatile int StepCoordinatesIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
 
-Servo ServoAngle;
-Servo ServoClaw;
+Servo ServoAngle; //Makes 'ServoAngle' an instance of Servo
+Servo ServoClaw; //Makes 'ServoClaw' an instance of Servo
 
 int alpha;
 int beta;
@@ -92,7 +93,8 @@ void setup() {
   task2 = scheduler -> createTask(&MotCtrlX, 50);
   task3 = scheduler -> createTask(&MotCtrlY, 50);
   task4 = scheduler -> createTask(&MotCtrlZ, 50);
-  task5 = scheduler -> createTask(&StepperPosCalc, 50);
+  //task5 = scheduler -> createTask(&StepperPosCalc, 50);
+  task6 = scheduler -> createTask(&StepCooChg, 50);
 
   Serial.println("Calculating initial stepper settings...");
   
@@ -107,11 +109,24 @@ void setup() {
   
 
   Serial.println("Starting...");
+  delay(50);
   
   scheduler->start(); //Starts the scheduler. At this point you enter in a multi tasking context.
 
   //...
   //Nothing will be executed here
+}
+
+
+void StepCooChg()
+{
+  digitalWrite(PinStepperSet[0], HIGH);
+  digitalWrite(PinStepperSet[1], HIGH);
+  for(;;)
+  {
+    ++StepCoordinatesTarget[0];
+    Serial.println(StepCoordinatesTarget[0]);
+  }
 }
 
 
