@@ -154,6 +154,8 @@ void loop() {
     Serial.println(data2.claw_width);/*
     Serial.println(AnglesTarget[1]);
     Serial.println(AnglesTarget[2]);
+    Serial.println(AnglesTarget[3]);
+    Serial.println(AnglesTarget[4]);
     Serial.println("Angles");
     Serial.println(AnglesTarget[0]);
     Serial.println(AnglesTarget[1]);
@@ -171,7 +173,7 @@ void loop() {
   Serial.println(Speed[1]);
   Serial.println(Speed[2]);//*/
   Communication();
-  
+
   if (mode == 2)
   {
     ModeP2P();

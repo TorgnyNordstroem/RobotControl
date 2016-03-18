@@ -2,20 +2,20 @@ void ModeKey()
 {
   if ((StepsTarget[0] + StepsTarget[1]) >= 5770)
   {
-    switch (data2.z) 
+    switch (data2.z)
     {
       case 1:
-        StepsTarget[0]--;
+        StepsTarget[0] -= 2;
         break;
       case 2:
         break;
       default:
         break;
     }
-    switch (data2.x) 
+    switch (data2.x)
     {
       case 1:
-        StepsTarget[1]--;
+        StepsTarget[1] -= 2;
         break;
       case 2:
         break;
@@ -25,22 +25,22 @@ void ModeKey()
   }
   else if ((StepsTarget[0] + StepsTarget[1]) <= 4090)
   {
-    switch (data2.z) 
+    switch (data2.z)
     {
       case 1:
         break;
       case 2:
-        StepsTarget[0]++;
+        StepsTarget[0] += 2;
         break;
       default:
         break;
     }
-    switch (data2.x) 
+    switch (data2.x)
     {
       case 1:
         break;
       case 2:
-        StepsTarget[1]++;
+        StepsTarget[1] += 2;
         break;
       default:
         break;
@@ -48,57 +48,61 @@ void ModeKey()
   }
   else
   {
-    switch (data2.z) 
+    switch (data2.z)
     {
       case 1:
-        StepsTarget[0]--;
+        StepsTarget[0] -= 2;
         break;
       case 2:
-        StepsTarget[0]++;
+        StepsTarget[0] += 2;
         break;
       default:
         break;
     }
-    switch (data2.x) 
+    switch (data2.x)
     {
       case 1:
-        StepsTarget[1]--;
+        StepsTarget[1] -= 2;
         break;
       case 2:
-        StepsTarget[1]++;
+        StepsTarget[1] += 2;
         break;
       default:
         break;
     }
   }
 
-  switch (data2.y) 
+  switch (data2.y)
   {
     case 1:
-      StepsTarget[2]--;
+      StepsTarget[2] -= 2;
       break;
     case 2:
-      StepsTarget[2]++;
+      StepsTarget[2] += 2;
       break;
     default:
       break;
   }
-  switch (data2.claw_tilt) 
+  switch (data2.claw_tilt)
   {
     case 1:
       AnglesTarget[3] += 0.2;
+      break;
     case 2:
       AnglesTarget[3] -= 0.2;
+      break;
     default:
       AnglesTarget[3] = constrain(AnglesTarget[3], 0, 190);
       break;
   }
-  switch (data2.claw_width) 
+  switch (data2.claw_width)
   {
     case 1:
       AnglesTarget[4] += 0.2;
+      break;
     case 2:
       AnglesTarget[4] -= 0.2;
+      break;
     default:
       AnglesTarget[4] = constrain(AnglesTarget[4], 95, 175);
       break;
