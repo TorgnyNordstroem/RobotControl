@@ -2,7 +2,8 @@ void ModeKey()
 {
   if ((StepsTarget[0] + StepsTarget[1]) >= 5770)
   {
-    switch (data2.z) {
+    switch (data2.z) 
+    {
       case 1:
         StepsTarget[0]--;
         break;
@@ -11,7 +12,8 @@ void ModeKey()
       default:
         break;
     }
-    switch (data2.x) {
+    switch (data2.x) 
+    {
       case 1:
         StepsTarget[1]--;
         break;
@@ -23,7 +25,8 @@ void ModeKey()
   }
   else if ((StepsTarget[0] + StepsTarget[1]) <= 4090)
   {
-    switch (data2.z) {
+    switch (data2.z) 
+    {
       case 1:
         break;
       case 2:
@@ -32,7 +35,8 @@ void ModeKey()
       default:
         break;
     }
-    switch (data2.x) {
+    switch (data2.x) 
+    {
       case 1:
         break;
       case 2:
@@ -44,7 +48,8 @@ void ModeKey()
   }
   else
   {
-    switch (data2.z) {
+    switch (data2.z) 
+    {
       case 1:
         StepsTarget[0]--;
         break;
@@ -54,7 +59,8 @@ void ModeKey()
       default:
         break;
     }
-    switch (data2.x) {
+    switch (data2.x) 
+    {
       case 1:
         StepsTarget[1]--;
         break;
@@ -66,7 +72,8 @@ void ModeKey()
     }
   }
 
-  switch (data2.y) {
+  switch (data2.y) 
+  {
     case 1:
       StepsTarget[2]--;
       break;
@@ -76,23 +83,25 @@ void ModeKey()
     default:
       break;
   }
-  
-  if (data2.claw_tilt == 1 && AnglesTarget[3] < 190)
+  switch (data2.claw_tilt) 
   {
-    AnglesTarget[3] += 0.2;
+    case 1:
+      AnglesTarget[3] += 0.2;
+    case 2:
+      AnglesTarget[3] -= 0.2;
+    default:
+      AnglesTarget[3] = constrain(AnglesTarget[3], 0, 190);
+      break;
   }
-  else if (data2.claw_tilt == 2 && AnglesTarget[3] > 0)
+  switch (data2.claw_width) 
   {
-    AnglesTarget[3] -= 0.2;
-  }
-
-  if (data2.claw_width == 1 && AnglesTarget[4] < 165)
-  {
-    AnglesTarget[4] += 0.2;
-  }
-  else if (data2.claw_width == 2 && AnglesTarget[4] > 100)
-  {
-    AnglesTarget[4] -= 0.2;
+    case 1:
+      AnglesTarget[4] += 0.2;
+    case 2:
+      AnglesTarget[4] -= 0.2;
+    default:
+      AnglesTarget[4] = constrain(AnglesTarget[4], 95, 175);
+      break;
   }
 }
 
@@ -101,8 +110,9 @@ void ModeP2P()
   AnglesTarget[0] = double(data.alpha);
   AnglesTarget[1] = double(data.beta);
   AnglesTarget[2] = double(data.y);
-  AnglesTarget[3] = double(data.claw_tilt) + 5.0;
-  AnglesTarget[4] = double(data.claw_width);
+  //y = map(x, 1, 50, 50, 1);
+  AnglesTarget[3] = double(data.claw_tilt) + 12.0;
+  AnglesTarget[4] = map(double(data.claw_width), 0, 76, 175, 95);
 }
 
 void ModeStartUp()

@@ -39,7 +39,7 @@ const int SpeedArray[6][4] =
 
 int StartPosAngles[3] = {90, 140, 0}; // Axis Angles
 
-double AnglesTarget[5] = {162.33, 139.66, 90, 90, 90}; //The angle target: z, x, y, a, c
+double AnglesTarget[5] = {162.33, 139.66, 90, 90, 120}; //The angle target: z, x, y, a, c
 
 int StepsTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
 int StepsIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
@@ -170,10 +170,9 @@ void loop() {
   Serial.println(Speed[0]);
   Serial.println(Speed[1]);
   Serial.println(Speed[2]);//*/
-  Serial.println(mode);
   Communication();
   
-  if (mode == 0)
+  if (mode == 2)
   {
     ModeP2P();
     ConvAngleStepP2P();
