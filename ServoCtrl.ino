@@ -1,5 +1,5 @@
 // Controls servo angles
-void SetServo()
+void ServoCtrl()
 {
   ServoAngle.write(RealAnglesTarget[3]);
   ServoClaw.write(RealAnglesTarget[4]);

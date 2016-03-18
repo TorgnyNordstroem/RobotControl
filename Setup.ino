@@ -19,13 +19,22 @@ void Setup()
   {
     pinMode(PinServoClaw[i], OUTPUT);
   }
+  for (i = 0; i <= 6; i++)
+  {
+    pinMode(PinManInput[i], INPUT);
+    digitalWrite(PinManInput[i], HIGH);
+    
+  }
 
   Serial.println("Creating tasks...");
   task1 = scheduler -> createTask(&MotCtrlX, 100, PrHigh);
   task2 = scheduler -> createTask(&MotCtrlY, 100, PrHigh);
   task3 = scheduler -> createTask(&MotCtrlZ, 100, PrHigh);
-  task4 = scheduler -> createTask(&MotDir, 100, PrLow);
-  task5 = scheduler -> createTask(&StepCooChg, 100, PrLow);
+  task4 = scheduler -> createTask(&MotDir, 100, PrLowest);
+  //task5 = scheduler -> createTask(&ServoCtrl, 100, PrLow);
+  task5 = scheduler -> createTask(&CooChgUserX, 100, PrLow);
+  task6 = scheduler -> createTask(&CooChgUserY, 100, PrLow);
+  task7 = scheduler -> createTask(&CooChgUserZ, 100, PrLow);
   
   scheduler -> setStackOverflowFnc(&fncSO);
   scheduler -> setSchedulingPolicy(SchPolicyIntelligent);

@@ -21,6 +21,9 @@ Task* task2 = NULL;
 Task* task3 = NULL;
 Task* task4 = NULL;
 Task* task5 = NULL;
+Task* task6 = NULL;
+Task* task7 = NULL;
+//Task* task8 = NULL;
 
 
 const int MilliPerSecond = 1000;
@@ -28,9 +31,10 @@ const int MaxCooSpeed = 50; // mm/s
 
 //Used Pins
 const int PinInterrupt[3] = {19, 20, 21}; //Pins for interrupt
-const int PinStepperDir[3] = {30, 36, 42}; //Pins for stepper direction
-const int PinStepperStep[3] = {31, 37, 43}; //Pins for stepper signals
-const int PinServoClaw[2] = {48, 49}; //Pins for the claw
+const int PinStepperDir[3] = {22, 28, 34}; //Pins for stepper direction
+const int PinStepperStep[3] = {23, 29, 35}; //Pins for stepper signals
+const int PinServoClaw[2] = {2, 3}; //Pins for the claw
+const int PinManInput[10] = {44, 45, 46, 47, 48, 49, 50, 51, 52, 53};
 
 const int StepperStepTotal = 200; //Number of full steps
 const int StepperMicrosteps = 16; //Microstepping multiplier 
@@ -77,34 +81,6 @@ void setup() {
   //Nothing will be executed here
 }
 
-
-void StepCooChg()
-{
-  for(;;)
-  {
-
-    OS48_ATOMIC_BLOCK
-    {
-      StepCoordinatesTarget[0] = 0;
-      StepCoordinatesTarget[1] = 00;
-      StepCoordinatesTarget[2] = 0;
-    }
-    Serial.println(StepCoordinatesTarget[0]);
-    Serial.println(StepCoordinatesTarget[1]);
-    Serial.println(StepCoordinatesTarget[2]);
-    task() -> sleep(10000);
-    
-    OS48_ATOMIC_BLOCK
-    {
-      StepCoordinatesTarget[0] = 0;
-      StepCoordinatesTarget[1] = 0;
-    }
-    Serial.println(StepCoordinatesTarget[0]);
-    Serial.println(StepCoordinatesTarget[1]);
-    Serial.println(StepCoordinatesTarget[2]);
-    task() -> sleep(10000);
-  }
-}
 
 
 void CooChg()

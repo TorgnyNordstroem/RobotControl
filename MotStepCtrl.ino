@@ -12,7 +12,7 @@ void MotCtrlX()
       digitalWrite(PinStepperStep[0], HIGH);
       delay(2);
       digitalWrite(PinStepperStep[0], LOW);
-      delay(5);
+      delay(20);
 
       // Blocks all but following read/write
       OS48_ATOMIC_BLOCK
@@ -42,7 +42,7 @@ void MotCtrlY()
       digitalWrite(PinStepperStep[1], HIGH);
       delay(2);
       digitalWrite(PinStepperStep[1], LOW);
-      delay(5);
+      delay(20);
       
       OS48_ATOMIC_BLOCK
       {
@@ -64,9 +64,9 @@ void MotCtrlZ()
     while(StepCoordinatesTarget[2] != StepCoordinatesIs[2])
     {
       digitalWrite(PinStepperStep[2], HIGH);
-      delay(1);
-      digitalWrite(PinStepperStep[2], LOW);
       delay(2);
+      digitalWrite(PinStepperStep[2], LOW);
+      delay(20);
       
       OS48_ATOMIC_BLOCK
       {
