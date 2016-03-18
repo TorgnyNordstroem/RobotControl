@@ -18,6 +18,9 @@ Scheduler* scheduler = Scheduler::get(); //Get the instance
 //Declare the task pointers as global vars to use them in the task functions.
 Task* task1 = NULL; 
 Task* task2 = NULL;
+Task* task3 = NULL;
+Task* task4 = NULL;
+Task* task5 = NULL;
 
 
 int StartComplete = 0;
@@ -25,9 +28,9 @@ const int MilliPerSecond = 1000;
 
 //Used Pins
 const int PinInterrupt[3] = {19, 20, 21}; //Pins for interrupt
-const int PinStepperDir[3] = {30, 34, 38}; //Pins for stepper direction
-const int PinStepperStep[3] = {31, 35, 39}; //Pins for stepper signals
-const int PinServoClaw[2] = {42, 43}; //Pins for the claw
+const int PinStepperDir[3] = {30, 36, 42}; //Pins for stepper direction
+const int PinStepperStep[3] = {31, 37, 43}; //Pins for stepper signals
+const int PinServoClaw[2] = {48, 49}; //Pins for the claw
 
 const int StepperStepTotal = 200; //Number of full steps
 const int StepperMicrosteps = 16; //Microstepping multiplier 
@@ -37,7 +40,7 @@ volatile int StepperStepTime[3]; //Time inbetween each step
 
 volatile int CoordinatesTarget[2] = {0, 0}; //Coordinates (x, y) in mm (input from user)
 
-volatile int RealAnglesTarget[5] = {0, 0, 0, 90, 90}; //The angle target: x, y, z, a, c
+volatile int RealAnglesTarget[5] = {0, 0, 0, 80, 80}; //The angle target: x, y, z, a, c
 
 volatile int StepCoordinatesTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
 volatile int StepCoordinatesIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
@@ -82,7 +85,10 @@ void setup() {
 
   Serial.println("Creating tasks...");
   task1 = scheduler -> createTask(&MotCtrlX, 100, PrHigh);
-  task2 = scheduler -> createTask(&StepCooChg, 100, PrLow);
+  task2 = scheduler -> createTask(&MotCtrlY, 100, PrHigh);
+  task3 = scheduler -> createTask(&MotCtrlZ, 100, PrHigh);
+  task4 = scheduler -> createTask(&MotDir, 100, PrLow);
+  task5 = scheduler -> createTask(&StepCooChg, 100, PrLow);
   
   scheduler -> setStackOverflowFnc(&fncSO);
   scheduler -> setSchedulingPolicy(SchPolicyIntelligent);
@@ -90,8 +96,8 @@ void setup() {
   Serial.println("Calculating initial stepper settings...");
   
   Serial.println("Attaching servos");
-  ServoAngle.attach(42);
-  ServoClaw.attach(46);
+  ServoAngle.attach(PinServoClaw[0]);
+  ServoClaw.attach(PinServoClaw[1]);
 
   Serial.println("Attaching interrupts...");
   attachInterrupt(digitalPinToInterrupt(PinInterrupt[0]), ResetCoorX, FALLING); //ResetCoor0 is executed when InterruptPins[0] receives a falling edge signal
@@ -112,12 +118,95 @@ void StepCooChg()
 {
   for(;;)
   {
-    StepCoordinatesTarget[0] = 1200;
+
+    OS48_ATOMIC_BLOCK
+    {
+      StepCoordinatesTarget[0] = 100;
+      StepCoordinatesTarget[1] = 100;
+      StepCoordinatesTarget[2] = 100;
+    }
     Serial.println(StepCoordinatesTarget[0]);
-    task() -> sleep(30000);
+    Serial.println(StepCoordinatesTarget[1]);
+    Serial.println(StepCoordinatesTarget[2]);
+    task() -> sleep(10000);
+    
+    OS48_ATOMIC_BLOCK
+    {
+      StepCoordinatesTarget[0] = 0;
+      StepCoordinatesTarget[1] = 0;
+    }
+    Serial.println(StepCoordinatesTarget[0]);
+    Serial.println(StepCoordinatesTarget[1]);
+    Serial.println(StepCoordinatesTarget[2]);
+    task() -> sleep(10000);
   }
 }
 
+
+
+
+void SetServo()
+{
+  ServoAngle.write(RealAnglesTarget[3]);
+  ServoClaw.write(RealAnglesTarget[4]);
+}
+
+
+void MotDir()
+{
+  for(;;)
+  {
+    if (StepCoordinatesTarget[0] < StepCoordinatesIs[0])
+    {
+      digitalWrite(PinStepperDir[0], LOW);
+      OS48_ATOMIC_BLOCK
+      {
+        StepCoordinatesAdd[0] = -1;
+      }
+    }
+    else
+    {
+      digitalWrite(PinStepperDir[0], HIGH);
+      OS48_ATOMIC_BLOCK
+      {
+        StepCoordinatesAdd[0] = 1;
+      }
+    }
+    if (StepCoordinatesTarget[1] < StepCoordinatesIs[1])
+    {
+      digitalWrite(PinStepperDir[1], LOW);
+      OS48_ATOMIC_BLOCK
+      {
+        StepCoordinatesAdd[1] = -1;
+      }
+    }
+    else
+    {
+      digitalWrite(PinStepperDir[1], HIGH);
+      OS48_ATOMIC_BLOCK
+      {
+        StepCoordinatesAdd[1] = 1;
+      }
+    }
+    if (StepCoordinatesTarget[2] < StepCoordinatesIs[2])
+    {
+      digitalWrite(PinStepperDir[2], LOW);
+      OS48_ATOMIC_BLOCK
+      {
+        StepCoordinatesAdd[2] = -1;
+      }
+    }
+    else
+    {
+      digitalWrite(PinStepperDir[2], HIGH);
+      OS48_ATOMIC_BLOCK
+      {
+        StepCoordinatesAdd[2] = 1;
+      }
+    }
+    task() -> sleep(10);
+  }
+}
 
 void MotCtrlX()
 {
@@ -126,20 +215,64 @@ void MotCtrlX()
     while(StepCoordinatesTarget[0] != StepCoordinatesIs[0])
     {
       digitalWrite(PinStepperStep[0], HIGH);
-      delay(1);
+      delay(2);
       digitalWrite(PinStepperStep[0], LOW);
-      delay(1);
+      delay(10);
       
       OS48_ATOMIC_BLOCK
       {
         StepCoordinatesIs[0] += StepCoordinatesAdd[0];
-        Serial.println(StepCoordinatesIs[0]);
       }
+      Serial.print("X Is: ");
+      Serial.println(StepCoordinatesIs[0]);
     }
-    task() -> sleep(10);
+    task() -> sleep(50);
   }
 }
 
+void MotCtrlY()
+{
+  for(;;)
+  {
+    while(StepCoordinatesTarget[1] != StepCoordinatesIs[1])
+    {
+      digitalWrite(PinStepperStep[1], HIGH);
+      delay(2);
+      digitalWrite(PinStepperStep[1], LOW);
+      delay(10);
+      
+      OS48_ATOMIC_BLOCK
+      {
+        StepCoordinatesIs[1] += StepCoordinatesAdd[1];
+      }
+      Serial.print("Y Is: ");
+      Serial.println(StepCoordinatesIs[1]);
+    }
+    task() -> sleep(50);
+  }
+}
+
+void MotCtrlZ()
+{
+  for(;;)
+  {
+    while(StepCoordinatesTarget[2] != StepCoordinatesIs[2])
+    {
+      digitalWrite(PinStepperStep[2], HIGH);
+      delay(2);
+      digitalWrite(PinStepperStep[2], LOW);
+      delay(10);
+      
+      OS48_ATOMIC_BLOCK
+      {
+        StepCoordinatesIs[2] += StepCoordinatesAdd[2];
+      }
+      Serial.print("Z Is: ");
+      Serial.println(StepCoordinatesIs[2]);
+    }
+    task() -> sleep(50);
+  }
+}
 
 
 
@@ -154,6 +287,8 @@ void ResetCoorX()
   RealAnglesTarget[0] = 0;
 }
 
+
+//function responsible at memory overflow 
 void fncSO()
 {
   Serial.println("Stack overflow!");
