@@ -2,6 +2,9 @@
 Arduino code used to control our robotic arm
 
 ## RobotControl 1.0.0
+* Added internal breaks for key-control
+* Fixed mode selection
+* Increased speed of steppers in key-control mode
 
 ## RobotControl 0.9.0
 * Added key-control mode
