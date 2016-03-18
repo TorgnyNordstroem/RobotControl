@@ -2,7 +2,7 @@ void CtrlUserManual()
 {
   if(digitalRead(PinManInput[0]) == LOW) ++StepCoordinatesTarget[0];
   if(digitalRead(PinManInput[1]) == LOW) --StepCoordinatesTarget[0];
-    
+  
   if(digitalRead(PinManInput[2]) == LOW) ++StepCoordinatesTarget[1];
   if(digitalRead(PinManInput[3]) == LOW) --StepCoordinatesTarget[1];
     

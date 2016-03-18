@@ -14,6 +14,12 @@ void Setup()
   {
     pinMode(PinManInput[i], INPUT_PULLUP);
   }
+  for (int i = 0; i <= 3; i++)
+  {
+    pinMode(PinSpeed[i][0], OUTPUT);
+    pinMode(PinSpeed[i][1], OUTPUT);
+    pinMode(PinSpeed[i][2], OUTPUT);
+  }
 
   Serial.println("Initializing servos");
   ServoAngle.attach(PinServos[0]);
