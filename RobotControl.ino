@@ -1,31 +1,21 @@
 #include <Servo.h>
+//beta 195°
 
-
-const int PinStepperDir[3] = {32, 42, 52};
-const int PinStepperStep[3] = {30, 40, 50};
-const int PinServos[2] = {2, 3};
 const int PinEnable[3] = {28, 38, 48};
+const int PinStepperStep[3] = {30, 40, 50};
+const int PinStepperDir[3] = {32, 42, 52};
+const int PinServos[2] = {2, 3};
 const int PinSpeed[3][3] =
 {
   //Mode 0, Mode 1, Mode 2
-  // x-axis
-  {29, 31, 33},
-  // y-axis
-  {39, 41, 43},
   // z-axis
+  {29, 31, 33},
+  // x-axis
+  {39, 41, 43},
+  // y-axis
   {49, 51, 53}
 };
 
-int RealCoordsTarget[3] = {0, 0, 0};
-int RealAnglesTarget[5] = {0, 0, 0, 90, 90}; //The angle target: x, y, z, a, c
-
-int StepCoordinatesTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
-int StepCoordinatesIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
-
-int AbsDiff;
-
-int Speed[3] = {0, 0, 0};
-int SpeedSteps[3] = {0, 0, 0};
 /* Array used to determin speed of motors
     {Mode 0, Mode 1, Mode 2, Multiplier}
     Mode referes to the speed controlers on the stepper chip
@@ -46,35 +36,73 @@ const int SpeedArray[6][4] =
   {LOW, LOW, LOW, 32}
 };
 
+int CoordsTarget[3] = {180, 100, 0};
+
+int AnglesTarget[5] = {0, 0, 0, 90, 90}; //The angle target: z, x, y, a, c
+int AnglesIs[3] = {0, 0, 0};
+
+int StepsTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
+int StepsIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
+
+int AbsDiff;
+
+int Speed[3] = {0, 0, 0};
+int SpeedSteps[3] = {0, 0, 0};
+
 Servo ServoAngle; //Makes 'ServoAngle' an instance of Servo
 Servo ServoClaw; //Makes 'ServoClaw' an instance of Servo
+
+//Values for Conversion
+const int e1 = 100; //In mm
+const int e2 = 80; //In mm
+const int e3 = 100; //In mm
+const int e4 = 111; //In mm
+int Rabs;
+int Gamma;
+int Phi;
+int Rx;
+int Rz;
 
 void setup() {
   Setup();
 }
 
 void loop() {
-  if (StepCoordinatesIs[0] >= 750 && StepCoordinatesIs[1] <= -400 && StepCoordinatesIs[2] <= -250)
+  if (CoordsTarget[0] == 250 && StepsTarget[0] >= StepsIs[0])
   {
-    StepCoordinatesTarget[0] = 0;
-    StepCoordinatesTarget[1] = 0;
-    StepCoordinatesTarget[2] = 0;
-    RealAnglesTarget[3] = 60;
-    RealAnglesTarget[4] = 60;
+    //Serial.println("One");
+    CoordsTarget[0] = 180;
+    AnglesTarget[3] = 60;
+    AnglesTarget[4] = 60;
   }
-
-  if (StepCoordinatesIs[0] == 0 && StepCoordinatesIs[1] == 0 && StepCoordinatesIs[2] == 0)
+  else if (CoordsTarget[0] == 180 && StepsTarget[0] <= StepsIs[0])
   {
-    StepCoordinatesTarget[0] = 750;
-    StepCoordinatesTarget[1] = -400;
-    StepCoordinatesTarget[2] = -250;
-    RealAnglesTarget[3] = 150;
-    RealAnglesTarget[4] = 150;
+    //Serial.println("Two");
+    CoordsTarget[0] = 250;
+    AnglesTarget[3] = 150;
+    AnglesTarget[4] = 150;
   }
-
+  /*
+  Serial.println("");
+  Serial.println("");
+  Serial.println("Z");
+  Serial.println(CoordsTarget[0]);
+  Serial.println("Target");
+  Serial.println(StepsTarget[0]);
+  Serial.println(StepsTarget[1]);
+  Serial.println("Is");
+  Serial.println(StepsIs[0]);
+  Serial.println(StepsIs[1]);
+  Serial.println("Speed");
+  Serial.println(Speed[0]);
+  Serial.println(Speed[1]);
+  */
+  
+  ConvCoordsToAngle();
+  ConvAngleStep();
   CtrlSpeed();
   CtrlMotor();
   CtrlServo();
 
-  delay(10);
+  delay(5);
 }

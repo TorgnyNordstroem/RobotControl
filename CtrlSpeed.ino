@@ -2,7 +2,7 @@ void CtrlSpeed()
 {
   for (int a = 0; a < 3; a++)
   {
-    AbsDiff = abs(max(StepCoordinatesTarget[a], StepCoordinatesIs[a])) - abs(min(StepCoordinatesTarget[a], StepCoordinatesIs[a]));
+    AbsDiff = abs(max(StepsTarget[a], StepsIs[a])) - abs(min(StepsTarget[a], StepsIs[a]));
     AbsDiff = abs(AbsDiff);
 
     if (AbsDiff > 5 * (SpeedArray[Speed[a] + 1][3]) && Speed[a] < 3 && SpeedSteps[a] >= 10)

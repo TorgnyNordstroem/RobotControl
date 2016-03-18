@@ -2,19 +2,19 @@ void CtrlMotor()
 {
   for (int i = 0; i < 3; i++)
   {
-    if (StepCoordinatesTarget[i] < StepCoordinatesIs[i])
+    if (StepsTarget[i] < StepsIs[i])
     {
       digitalWrite(PinStepperDir[i], LOW);
       digitalWrite(PinStepperStep[i], HIGH);
-      StepCoordinatesIs[i] -= SpeedArray[Speed[i]][3];
+      StepsIs[i] -= SpeedArray[Speed[i]][3];
       ++SpeedSteps[i];
       digitalWrite(PinStepperStep[i], LOW);
     }
-    else if (StepCoordinatesTarget[i] > StepCoordinatesIs[i])
+    else if (StepsTarget[i] > StepsIs[i])
     {
       digitalWrite(PinStepperDir[i], HIGH);
       digitalWrite(PinStepperStep[i], HIGH);
-      StepCoordinatesIs[i] += SpeedArray[Speed[i]][3];
+      StepsIs[i] += SpeedArray[Speed[i]][3];
       ++SpeedSteps[i];
       digitalWrite(PinStepperStep[i], LOW);
     }

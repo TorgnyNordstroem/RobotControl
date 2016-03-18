@@ -36,10 +36,9 @@ void Setup()
   ServoClaw.attach(PinServos[1]);
 
   Serial.println("Moving to starting positions");
-  ServoAngle.write(RealAnglesTarget[3]);
-  ServoClaw.write(RealAnglesTarget[4]);
+  ServoAngle.write(AnglesTarget[3]);
+  ServoClaw.write(AnglesTarget[4]);
 
   Serial.println("Setup finished");
   delay(20);
 }
-
