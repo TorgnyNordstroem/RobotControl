@@ -5,12 +5,13 @@ void ConvCoordsToAngle()
   
   Rabs = sqrt(pow(Rx, 2) + pow(Rz, 2));
 
-  Gamma = atan(Rx / Rz);
-  Phi = acos((pow(e2, 2) + pow(Rabs, 2) - pow(e3, 2)) / (2*e2*Rabs)) * (180 / PI);
+  float Gamma = atan(Rx / Rz) * (180 / PI);
+  float Phi = acos((pow(e2, 2) + pow(Rabs, 2) - pow(e3, 2)) / (2*e2*Rabs)) * (180 / PI);
+
+  float Beta = acos((pow(e2, 2) + pow(e3, 2) - pow(Rabs, 2)) / (2*e2*e3)) * (180 / PI);
   
   AnglesTarget[0] = 90 + Gamma + Phi;
-  int TrueAnglesTarget1 = acos((pow(e2, 2) + pow(e3, 2) - pow(Rabs, 2)) / (2*e2*e3)) * (180 / PI);
-  AnglesTarget[1] = TrueAngle + AnglesTarget[0];
+  AnglesTarget[1] = (360 - (Beta + AnglesTarget[0]));
 }
 
 void ConvAngleStep()

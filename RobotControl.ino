@@ -37,7 +37,7 @@ const int SpeedArray[6][4] =
   {LOW, LOW, LOW, 32}
 };
 
-int StartPosAngles[3] = {90, 220, -90}; // Axis Angles
+int StartPosAngles[3] = {90, 140, -90}; // Axis Angles
 int StartPosTarget[5] = {200, 100, 0, 90, 90}; // 0, 1, 2: Axis coordinates; 3, 4: Servo angles
 
 int CoordsTarget[3] = {0, 0, 0};
@@ -74,22 +74,25 @@ void setup() {
 void loop() {
 
   
-  if (CoordsTarget[0] == 250 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
+  if (CoordsTarget[0] == 180 && CoordsTarget[1] == 200 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
   {
     //Serial.println("One");
-    CoordsTarget[0] = 180;
+    CoordsTarget[0] = 270;
+    CoordsTarget[1] = 50;
   }
-  else if (CoordsTarget[0] == 180 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
+  else if (CoordsTarget[0] == 270 && CoordsTarget[1] == 50 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
   {
     //Serial.println("Two");
-    CoordsTarget[0] = 250;
+    CoordsTarget[0] = 180;
+    CoordsTarget[1] = 200;
   }
 
-  if (CoordsTarget[0] == 200 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
+  if (CoordsTarget[0] == 200 && CoordsTarget[1] == 100 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
   {
-    CoordsTarget[0] = 250;
+    CoordsTarget[0] = 180;
+    CoordsTarget[1] = 200;
   }
-  /*
+  /* Debug info
   Serial.println("");
   Serial.println("");
   Serial.println("Z");
