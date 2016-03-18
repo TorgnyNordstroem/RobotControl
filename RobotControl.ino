@@ -1,7 +1,5 @@
 #include <Servo.h>
 
-int i = 0;
-int Start = 0;
 const int PinLED[2] = {0, 2};
 const int PinSense[3] = {41, 33, 25};
 const int PinStepperStep[3] = {43, 35, 27};
@@ -41,7 +39,7 @@ const int SpeedArray[6][4] =
 
 int StartPosAngles[3] = {90, 140, 0}; // Axis Angles
 
-double AnglesTarget[5] = {162.33, 139.66, 90, 90, 90}; //The angle target: z, x, y, a, c
+double AnglesTarget[5] = {162.33, 139.66, 90, 90, 120}; //The angle target: z, x, y, a, c
 
 int StepsTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
 int StepsIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
@@ -54,18 +52,8 @@ int SpeedSteps[3] = {0, 0, 0};
 Servo ServoAngle; //Makes 'ServoAngle' an instance of Servo
 Servo ServoClaw; //Makes 'ServoClaw' an instance of Servo
 
-//Values for Conversion
-const int e1 = 100; //In mm
-const int e2 = 80; //In mm
-const int e3 = 100; //In mm
-const int e4 = 111; //In mm
-int Rabs;
-int Gamma;
-int Phi;
-int Rx;
-int Rz;
-
 int CycleTime = 7;
+int SensDetect[3] = {0, 0, 0};
 
 
 
@@ -166,6 +154,8 @@ void loop() {
     Serial.println(data2.claw_width);/*
     Serial.println(AnglesTarget[1]);
     Serial.println(AnglesTarget[2]);
+    Serial.println(AnglesTarget[3]);
+    Serial.println(AnglesTarget[4]);
     Serial.println("Angles");
     Serial.println(AnglesTarget[0]);
     Serial.println(AnglesTarget[1]);
@@ -177,22 +167,20 @@ void loop() {
   Serial.println("Is");
   Serial.println(StepsIs[0]);
   Serial.println(StepsIs[1]);
-  Serial.println(StepsIs[2]);/*
+  Serial.println(StepsIs[2]);
   Serial.println("Speed");
   Serial.println(Speed[0]);
   Serial.println(Speed[1]);
-  Serial.println(Speed[2]);*/
-  //Serial.println(mode);
-
+  Serial.println(Speed[2]);//*/
   Communication();
-  
-  if (mode = 0)
+
+  if (mode == 2)
   {
     ModeP2P();
     ConvAngleStepP2P();
-    CycleTime = 10;
+    CycleTime = 7;
   }
-  else if (mode = 1)
+  else if (mode == 1)
   {
     ModeKey();
     CycleTime = 3;

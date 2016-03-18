@@ -33,6 +33,7 @@ void Setup()
   Serial.println("Initializing servos");
   ServoAngle.attach(PinServos[0]);
   ServoClaw.attach(PinServos[1]);
+  CtrlServo();
 
 
   // Program part: computer/Arduino (Alexander Seiler)
@@ -49,6 +50,11 @@ void Setup()
     while (1);
   }
 
+  digitalWrite(PinLED[0], HIGH);
+  digitalWrite(PinLED[1], HIGH);
+  delay(100);
+  digitalWrite(PinLED[0], LOW);
+  digitalWrite(PinLED[1], LOW);
   /* Optional: Update the Mac Address to a known value */
   /*
     uint8_t macAddress[6] = { 0x08, 0x00, 0x28, 0x01, 0x79, 0xB7 };
@@ -72,6 +78,11 @@ void Setup()
   listSSIDResults();
 #endif
 
+  digitalWrite(PinLED[0], HIGH);
+  digitalWrite(PinLED[1], HIGH);
+  delay(100);
+  digitalWrite(PinLED[0], LOW);
+  digitalWrite(PinLED[1], LOW);
   /* Delete any old connection data on the module */
   Serial.println(F("\nDeleting old connection profiles"));
   if (!cc3000.deleteProfiles()) {
@@ -91,6 +102,12 @@ void Setup()
 
   Serial.println(F("Connected!"));
 
+  digitalWrite(PinLED[0], HIGH);
+  digitalWrite(PinLED[1], HIGH);
+  delay(100);
+  digitalWrite(PinLED[0], LOW);
+  digitalWrite(PinLED[1], LOW);
+
   /* Wait for DHCP to complete */
   Serial.println(F("Request DHCP"));
   while (!cc3000.checkDHCP())
@@ -108,10 +125,10 @@ void Setup()
   uint32_t ip = 0;
   Serial.print(F("www.adafruit.com -> "));
   while (ip == 0) {
-    if (!cc3000.getHostByName("www.adafruit.com", &ip)) {
-      Serial.println(F("Couldn't resolve!"));
-    }
-    delay(500);
+  if (!cc3000.getHostByName("www.adafruit.com", &ip)) {
+  Serial.println(F("Couldn't resolve!"));
+  }
+  delay(500);
   }
   cc3000.printIPdotsRev(ip);
 
@@ -120,7 +137,7 @@ void Setup()
   uint8_t replies = cc3000.ping(ip, 5);
   Serial.print(replies); Serial.println(F(" replies"));
   if (replies)
-    Serial.println(F("Ping successful!"));
+  Serial.println(F("Ping successful!"));
   #endif*/
 
 

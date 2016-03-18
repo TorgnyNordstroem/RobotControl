@@ -1,6 +1,6 @@
 void CtrlServo()
 {
-  ServoAngle.write(AnglesTarget[3]);
-  ServoClaw.write(AnglesTarget[4]);
+    ServoAngle.write(AnglesTarget[3]);
+    ServoClaw.write(AnglesTarget[4]);
 }
 
