@@ -1,11 +1,10 @@
 #include <Servo.h>
-//beta 195°
 
 const int PinSense[3] = {27, 37, 47};
 const int PinEnable[3] = {28, 38, 48};
 const int PinStepperStep[3] = {30, 40, 50};
 const int PinStepperDir[3] = {32, 42, 52};
-const int PinServos[2] = {2, 3};
+const int PinServos[2] = {6, 7};
 const int PinSpeed[3][3] =
 {
   //Mode 0, Mode 1, Mode 2
@@ -69,6 +68,75 @@ int Rz;
 
 int CycleTime = 10;
 
+
+
+// Program part: computer/Arduino (Alexander Seiler)
+#include <Adafruit_CC3000_Server.h>
+#include <Adafruit_CC3000.h>
+#include <SPI.h>
+#include <ccspi.h>
+
+#include <UDPServer.h>
+#include <string.h>
+#include "utility/debug.h"
+
+
+#define UDP_READ_BUFFER_SIZE 30
+#define LISTEN_PORT_UDP 11001
+UDPServer udpServer(LISTEN_PORT_UDP);
+
+char sending[] = "ROBOTIC-ARM";
+char pw[] = "robotic_arm";
+char retpw[] = "test";
+const int lenght = 12;
+bool connected = false;
+bool checked = false;
+
+struct coords
+{
+  int x;
+  int y;
+  int z;
+  int claw_tilt;
+  int claw_width;
+};
+
+typedef struct coords Coords;
+
+struct str_coords
+{
+  String x;
+  String y;
+  String z;
+  String claw_tilt;
+  String claw_width;
+};
+
+typedef struct str_coords STR_COORDS;
+
+Coords data;
+
+
+size_t size = strlen(pw);
+uint8_t buf[lenght];
+
+#define ADAFRUIT_CC3000_IRQ   3
+#define ADAFRUIT_CC3000_VBAT  5
+#define ADAFRUIT_CC3000_CS    10
+Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT, SPI_CLOCK_DIVIDER);
+
+#define WLAN_SSID       "ROBOTIC_ARM"
+#define WLAN_PASS       "robotest"
+#define WLAN_SECURITY   WLAN_SEC_WPA2
+
+IPAddress Empfangsadresse = IPAddress(192, 86, 43, 255);
+uint32_t IPAd = cc3000.IP2U32(192, 168, 1, 255);
+uint16_t port = 11000;
+
+
+// Definitions end
+
+
 void setup() {
   Setup();
 }
@@ -111,13 +179,14 @@ void loop() {
   *//*
   if ()
   {
-    ModeContinous();
+  ModeContinous();
   }
   else
   {
-    ModeP2P();
+  ModeP2P();
   }
 */
+  Communication();
   ConvCoordsToAngle();
   ConvAngleStep();
   CalcAbsDiff();
