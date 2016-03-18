@@ -48,7 +48,7 @@ int AnglesIs[3] = {0, 0, 0};
 int StepsTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
 int StepsIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
 
-int AbsDiff;
+int AbsDiff[3] = {0, 0, 0};
 
 int Speed[3] = {0, 0, 0};
 int SpeedSteps[3] = {0, 0, 0};
@@ -67,52 +67,65 @@ int Phi;
 int Rx;
 int Rz;
 
+int CycleTime = 10;
+
 void setup() {
   Setup();
 }
 
 void loop() {
 
-  
-  if (CoordsTarget[0] == 180 && CoordsTarget[1] == 200 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
-  {
+  /*
+    if (CoordsTarget[0] == 180 && CoordsTarget[1] == 200 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
+    {
     //Serial.println("One");
     CoordsTarget[0] = 270;
     CoordsTarget[1] = 50;
-  }
-  else if (CoordsTarget[0] == 270 && CoordsTarget[1] == 50 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
-  {
+    }
+    else if (CoordsTarget[0] == 270 && CoordsTarget[1] == 50 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
+    {
     //Serial.println("Two");
     CoordsTarget[0] = 180;
     CoordsTarget[1] = 200;
-  }
+    }
 
-  if (CoordsTarget[0] == 200 && CoordsTarget[1] == 100 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
-  {
+    if (CoordsTarget[0] == 200 && CoordsTarget[1] == 100 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
+    {
     CoordsTarget[0] = 180;
     CoordsTarget[1] = 200;
+    }
+    /* Debug info
+    Serial.println("");
+    Serial.println("");
+    Serial.println("Z");
+    Serial.println(CoordsTarget[0]);
+    Serial.println("Target");
+    Serial.println(StepsTarget[0]);
+    Serial.println(StepsTarget[1]);
+    Serial.println("Is");
+    Serial.println(StepsIs[0]);
+    Serial.println(StepsIs[1]);
+    Serial.println("Speed");
+    Serial.println(Speed[0]);
+    Serial.println(Speed[1]);
+  *//*
+  if ()
+  {
+    ModeContinous();
   }
-  /* Debug info
-  Serial.println("");
-  Serial.println("");
-  Serial.println("Z");
-  Serial.println(CoordsTarget[0]);
-  Serial.println("Target");
-  Serial.println(StepsTarget[0]);
-  Serial.println(StepsTarget[1]);
-  Serial.println("Is");
-  Serial.println(StepsIs[0]);
-  Serial.println(StepsIs[1]);
-  Serial.println("Speed");
-  Serial.println(Speed[0]);
-  Serial.println(Speed[1]);
-  */
-  
+  else
+  {
+    ModeP2P();
+  }
+*/
   ConvCoordsToAngle();
   ConvAngleStep();
+  CalcAbsDiff();
+  //SensorCheck();
   CtrlSpeed();
   CtrlMotor();
   CtrlServo();
 
-  delay(10);
+  delay(CycleTime);
 }
+
