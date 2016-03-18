@@ -1,19 +1,19 @@
+
+
+unsigned long time_received = 0;
+
+
 //im setup am ende muss sein: und time_received=millis();
 
 void Communication()
 {
   //update 11.02.2016: ich versuche bestimmte daten zu empfangen vom computer, sofern ich diese bekommen habe sende ich zureck und behandle mich als connected
-  unsigned long time_t = millis();
-  if (time_t - time_received > 6000)
-  {
-    //Serial.println("Alive not ok!");
-  }
 
-  /*
-    Serial.println(time_t);
-    Serial.println(time_t-time_received);*/
+
   while (connected == false)
   {
+    digitalWrite(PinLED[0], HIGH);
+    digitalWrite(PinLED[1], HIGH);
 
     /*if (ones == false) { Serial.println("LOOP:");  }*/
 
@@ -62,6 +62,8 @@ void Communication()
       }*/
 
   }
+    digitalWrite(PinLED[0], LOW);
+    digitalWrite(PinLED[1], LOW);
 
 
   /* add main program code here */
@@ -69,73 +71,113 @@ void Communication()
   {
     STR_COORDS dta_str;
     char buffer[UDP_READ_BUFFER_SIZE];
+    byte bufferx[UDP_READ_BUFFER_SIZE];
     int n = udpServer.readData(buffer, UDP_READ_BUFFER_SIZE);  // n contains # of bytes read into buffer
     Serial.print("n: "); Serial.println(n);
 
-    for (int i = 0; i < n; ++i) {
-      uint16_t c = buffer[i];
-      //Serial.print("c: "); Serial.println(c);
-      // ... Do whatever you want with 'c' here ...
-    }
-    if (buffer[5] == 2)
+    /*
+        for (int i = 0; i < n; ++i) {
+          uint16_t c = buffer[i];
+          Serial.print("c: "); Serial.println(c);
+          // ... Do whatever you want with 'c' here ...
+        }
+    */
+    mode = buffer[7];
+    if (mode == 2)
     {
       if (buffer[0] < 0)
       {
-        data.x = 256 + buffer[0];
+        bufferx[0] = 256 + buffer[0];
       }
       else
       {
-        data.x = buffer[0];
+        bufferx[0] = buffer[0];
       }
 
       if (buffer[1] < 0)
       {
-        data.y = 256 + buffer[1];
+        bufferx[1] = 256 + buffer[1];
       }
       else
       {
-        data.y = buffer[1];
+        bufferx[1] = buffer[1];
       }
 
       if (buffer[2] < 0)
       {
-        data.z = 256 + buffer[2];
+        bufferx[2] = 256 + buffer[2];
       }
       else
       {
-        data.z = buffer[2];
+        bufferx[2] = buffer[2];
       }
 
       if (buffer[3] < 0)
       {
-        data.claw_width = 256 + buffer[3];
+        bufferx[3] = 256 + buffer[3];
       }
       else
       {
-        data.claw_width = buffer[3];
+        bufferx[3] = buffer[3];
       }
 
       if (buffer[4] < 0)
       {
-        data.claw_tilt = 256 + buffer[4];
+        bufferx[4] = 256 + buffer[4];
       }
       else
       {
-        data.claw_tilt = buffer[4];
+        bufferx[4] = buffer[4];
       }
-/*
+      if (buffer[5] < 0)
+      {
+        bufferx[5] = 256 + buffer[5];
+      }
+      else
+      {
+        bufferx[5] = buffer[5];
+      }
+      if (buffer[6] < 0)
+      {
+        bufferx[6] = 256 + buffer[6];
+      }
+      else
+      {
+        bufferx[6] = buffer[6];
+      }
+
+      data.alpha = (bufferx[2] * 100 + bufferx[3]) / 100;
+      data.beta = (bufferx[0] * 100 + bufferx[1]) / 100;
+      data.y = bufferx[4];
+      data.claw_width = bufferx[5];
+      data.claw_tilt = bufferx[6];
+
       Serial.println("###");
-      Serial.println(data.x);
+      Serial.println(data.alpha);
+      Serial.println(data.beta);
       Serial.println(data.y);
-      Serial.println(data.z);
       Serial.println(data.claw_width);
-      Serial.println(data.claw_tilt);*/
+      Serial.println(data.claw_tilt);
     }
     else if (buffer[0] == 'C' && buffer[1] == 'o' && buffer[2] == 'm' && buffer[3] == 'p' && buffer[4] == 'u' && buffer[5] == 't' && buffer[6] == 'e' && buffer[7] == 'r' && buffer[8] == '_' && buffer[9] == 'a' && buffer[10] == 'l' && buffer[11] == 'i' && buffer[12] == 'v' && buffer[13] == 'e')
     {
       Serial.println("Alive_Data matching!");
       time_received = millis();
-      Serial.println(time_received);
+    }
+    else if (mode == 1)
+    {
+      data2.x = buffer[0];
+      data2.y = buffer[1];
+      data2.z = buffer[2];
+      data2.claw_width = buffer[3];
+      data2.claw_tilt = buffer[4];
+
+      Serial.println("###");
+      Serial.println(data2.x);
+      Serial.println(data2.y);
+      Serial.println(data2.z);
+      Serial.println(data2.claw_width);
+      Serial.println(data2.claw_tilt);
     }
   }
 

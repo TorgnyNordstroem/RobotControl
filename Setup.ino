@@ -20,6 +20,15 @@ void Setup()
   {
     pinMode(PinSense[i], INPUT_PULLUP);
   }
+  for (int i = 0; i < 2; i++)
+  {
+    pinMode(PinLED[i], OUTPUT);
+  }
+  digitalWrite(PinLED[0], HIGH);
+  digitalWrite(PinLED[1], HIGH);
+  delay(100);
+  digitalWrite(PinLED[0], LOW);
+  digitalWrite(PinLED[1], LOW);
 
   Serial.println("Initializing servos");
   ServoAngle.attach(PinServos[0]);
@@ -95,31 +104,31 @@ void Setup()
   }
   /*
     #ifndef CC3000_TINY_DRIVER
-    /* Try looking up www.adafruit.com *
-    uint32_t ip = 0;
-    Serial.print(F("www.adafruit.com -> "));
-    /*
-    while (ip == 0) {
-      if (!cc3000.getHostByName("www.adafruit.com", &ip)) {
-        Serial.println(F("Couldn't resolve!"));
-      }
-      delay(500);
+    /* Try looking up www.adafruit.com *//*
+  uint32_t ip = 0;
+  Serial.print(F("www.adafruit.com -> "));
+  while (ip == 0) {
+    if (!cc3000.getHostByName("www.adafruit.com", &ip)) {
+      Serial.println(F("Couldn't resolve!"));
     }
-    cc3000.printIPdotsRev(ip);
+    delay(500);
+  }
+  cc3000.printIPdotsRev(ip);
 
-    /* Do a quick ping test on adafruit.com *
-    Serial.print(F("\n\rPinging ")); cc3000.printIPdotsRev(ip); Serial.print("...");
-    uint8_t replies = cc3000.ping(ip, 5);
-    Serial.print(replies); Serial.println(F(" replies"));
-    if (replies)
-      Serial.println(F("Ping successful!"));
-    #endif
+  /* Do a quick ping test on adafruit.com *//*
+  Serial.print(F("\n\rPinging ")); cc3000.printIPdotsRev(ip); Serial.print("...");
+  uint8_t replies = cc3000.ping(ip, 5);
+  Serial.print(replies); Serial.println(F(" replies"));
+  if (replies)
+    Serial.println(F("Ping successful!"));
+  #endif*/
 
-  */
+
   for (int i = 0; i < lenght; i++)
   {
     buf[i] = sending[i];
   }
+
   Adafruit_CC3000_Client udpclient = cc3000.connectUDP(IPAd, port);
 
 
@@ -132,16 +141,25 @@ void Setup()
   /* add setup code here */
   udpServer.begin();
 
+  digitalWrite(PinLED[0], HIGH);
+  digitalWrite(PinLED[1], HIGH);
+  delay(100);
+  digitalWrite(PinLED[0], LOW);
+  digitalWrite(PinLED[1], LOW);
+
+  data.alpha = 162.33;
+  data.beta = 139.66;
+  data.y = 90;
+  data.claw_tilt = 90;
+  data.claw_width = 90;
+
   Serial.println("Calibrating");
   ModeStartUp();
 
-  data.x = 140;
-  data.y = 90;
-  data.z = 162;
-  data.claw_width = 90;
-  data.claw_tilt = 90;
   time_received = millis();
 
+  ModeP2P();
+  ConvAngleStep();
   Serial.println("Setup finished");
 
   delay(20);

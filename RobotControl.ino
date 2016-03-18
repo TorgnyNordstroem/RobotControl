@@ -1,18 +1,20 @@
 #include <Servo.h>
 
-const int PinSense[3] = {40, 32, 24};
-const int PinStepperStep[3] = {42, 34, 26};//50
-const int PinStepperDir[3] = {44, 36, 28};//52
+int i = 0;
+const int PinLED[2] = {0, 2};
+const int PinSense[3] = {41, 33, 25};
+const int PinStepperStep[3] = {43, 35, 27};
+const int PinStepperDir[3] = {45, 37, 29};
 const int PinServos[2] = {6, 7};
 const int PinSpeed[3][3] =
 {
   //Mode 0, Mode 1, Mode 2
   // z-axis
-  {41, 43, 45},
+  {40, 42, 44},
   // x-axis
-  {33, 35, 37},
+  {32, 34, 36},
   // y-axis
-  {25, 27, 29},
+  {24, 26, 28},
 };
 
 /* Array used to determin speed of motors
@@ -37,12 +39,8 @@ const int SpeedArray[6][4] =
 };
 
 int StartPosAngles[3] = {90, 140, 0}; // Axis Angles
-int StartPosTarget[5] = {162, 140, 90, 90, 90}; // 0, 1, 2: Axis coordinates; 3, 4: Servo angles
 
-int CoordsTarget[3] = {0, 0, 0};
-
-int AnglesTarget[5] = {0, 0, 0, 90, 90}; //The angle target: z, x, y, a, c
-int AnglesIs[3] = {0, 0, 0};
+double AnglesTarget[5] = {162.33, 139.66, 90, 90, 90}; //The angle target: z, x, y, a, c
 
 int StepsTarget[3] = {0, 0, 0}; //Stepper target in steps from 0 point
 int StepsIs[3] = {0, 0, 0}; //Stepper position in steps from 0 point
@@ -94,11 +92,11 @@ bool checked = false;
 
 struct coords
 {
-  unsigned int x;
-  unsigned int y;
-  unsigned int z;
-  unsigned int claw_tilt;
-  unsigned int claw_width;
+  double alpha;
+  double beta;
+  double y;
+  double claw_tilt;
+  double claw_width;
 };
 
 typedef struct coords Coords;
@@ -114,8 +112,22 @@ struct str_coords
 
 typedef struct str_coords STR_COORDS;
 
-Coords data;
+struct direction
+{
+  unsigned int x;
+  unsigned int y;
+  unsigned int z;
+  unsigned int claw_tilt;
+  unsigned int claw_width;
+};
 
+typedef struct direction DIRECTION;
+
+
+Coords data;
+DIRECTION data2;
+
+int mode = 0;
 
 size_t size = strlen(pw);
 uint8_t buf[lenght];
@@ -133,8 +145,6 @@ IPAddress Empfangsadresse = IPAddress(192, 86, 43, 255);
 uint32_t IPAd = cc3000.IP2U32(192, 168, 1, 255);
 uint16_t port = 11000;
 
-unsigned long time_received = 0;
-
 // Definitions end
 
 
@@ -143,61 +153,60 @@ void setup() {
 }
 
 void loop() {
-
   /*
-    if (CoordsTarget[0] == 180 && CoordsTarget[1] == 200 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
+    // Debug info
+    Serial.println("");
+    Serial.println("");
+    Serial.println("Angles");
+    Serial.println(AnglesTarget[0]);
+    Serial.println(AnglesTarget[1]);
+    Serial.println(AnglesTarget[2]);
+    Serial.println("Target");
+    Serial.println(StepsTarget[0]);
+    Serial.println(StepsTarget[1]);
+    Serial.println(StepsTarget[2]);
+    Serial.println("Is");
+    Serial.println(StepsIs[0]);
+    Serial.println(StepsIs[1]);
+    Serial.println(StepsIs[2]);/*
+    Serial.println("Speed");
+    Serial.println(Speed[0]);
+    Serial.println(Speed[1]);
+    Serial.println(Speed[2]);
+    /*
+    if ()
     {
-    //Serial.println("One");
-    CoordsTarget[0] = 270;
-    CoordsTarget[1] = 50;
+    ModeContinous();
     }
-    else if (CoordsTarget[0] == 270 && CoordsTarget[1] == 50 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
+    else
     {
-    //Serial.println("Two");
-    CoordsTarget[0] = 180;
-    CoordsTarget[1] = 200;
+    ModeP2P();
     }
-
-    if (CoordsTarget[0] == 200 && CoordsTarget[1] == 100 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
-    {
-    CoordsTarget[0] = 180;
-    CoordsTarget[1] = 200;
-    }*//*
-  // Debug info
-  Serial.println("");
-  Serial.println("");
-  Serial.println("Coords");
-  Serial.println(CoordsTarget[0]);
-  Serial.println(CoordsTarget[1]);
-  Serial.println(CoordsTarget[2]);
-  Serial.println("Angles");
-  Serial.println(AnglesTarget[0]);
-  Serial.println(AnglesTarget[1]);
-  Serial.println(AnglesTarget[2]);
-  Serial.println("Target");
-  Serial.println(StepsTarget[0]);
-  Serial.println(StepsTarget[1]);
-  Serial.println(StepsTarget[2]);
-  Serial.println("Is");
-  Serial.println(StepsIs[0]);
-  Serial.println(StepsIs[1]);
-  Serial.println(StepsIs[2]);
-  Serial.println("Speed");
-  Serial.println(Speed[0]);
-  Serial.println(Speed[1]);
-  Serial.println(Speed[2]);
-  /*
-  if ()
+  *//*
+  while (i < 50)
   {
-  ModeContinous();
+  digitalWrite(PinLED[0], HIGH);
+  digitalWrite(PinLED[1], HIGH);
+  i++;
   }
-  else
+  while (i > 0)
   {
-  ModeP2P();
-  }
-*/
+  digitalWrite(PinLED[0], LOW);
+  digitalWrite(PinLED[1], LOW);
+  i--;
+  }*/
+  
   Communication();
-  ImportAngles();
+  
+  if (mode = 0)
+  {
+    ModeP2P();
+  }
+  else if (mode = 1)
+  {
+    ModeKey();
+  }
+  
   ConvAngleStep();
   CalcAbsDiff();
   CtrlSpeed();
