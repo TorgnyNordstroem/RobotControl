@@ -78,15 +78,11 @@ void loop() {
   {
     //Serial.println("One");
     CoordsTarget[0] = 180;
-    AnglesTarget[3] = 60;
-    AnglesTarget[4] = 60;
   }
   else if (CoordsTarget[0] == 180 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
   {
     //Serial.println("Two");
     CoordsTarget[0] = 250;
-    AnglesTarget[3] = 150;
-    AnglesTarget[4] = 150;
   }
 
   if (CoordsTarget[0] == 200 && StepsTarget[0] == StepsIs[0] && StepsTarget[1] == StepsIs[1] && StepsTarget[2] == StepsIs[2])
