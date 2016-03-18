@@ -6,6 +6,8 @@ Arduino code used to control our robotic arm
 ## RobotControl 0.9.0
 
 ## RobotControl 0.8.0
+* Added communication capabilities
+* Fixed start up procedure
 
 ## RobotControl 0.7.0
 * Added start-up procedure
