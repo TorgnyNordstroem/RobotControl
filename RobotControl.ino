@@ -106,7 +106,6 @@ void setup() {
   Serial.println("Starting...");
   delay(50);
   
-        Serial.println(millis());
   scheduler->start(); //Starts the scheduler. At this point you enter in a multi tasking context.
 
   //...
@@ -121,9 +120,9 @@ void StepCooChg()
 
     OS48_ATOMIC_BLOCK
     {
-      StepCoordinatesTarget[0] = 100;
-      StepCoordinatesTarget[1] = 100;
-      StepCoordinatesTarget[2] = 100;
+      StepCoordinatesTarget[0] = 0;
+      StepCoordinatesTarget[1] = 00;
+      StepCoordinatesTarget[2] = 0;
     }
     Serial.println(StepCoordinatesTarget[0]);
     Serial.println(StepCoordinatesTarget[1]);
@@ -145,17 +144,23 @@ void StepCooChg()
 
 
 
+// Controls servo angles
 void SetServo()
 {
   ServoAngle.write(RealAnglesTarget[3]);
   ServoClaw.write(RealAnglesTarget[4]);
+  task() -> sleep(5);
 }
 
 
+// Controls all Motor directions
 void MotDir()
 {
+  // Run forever
   for(;;)
   {
+    // X-axis: If Target is less then current position, set DIR-pin to LOW
+    // and make sure that MotCtrlX() can count in the correct direction.
     if (StepCoordinatesTarget[0] < StepCoordinatesIs[0])
     {
       digitalWrite(PinStepperDir[0], LOW);
@@ -172,6 +177,7 @@ void MotDir()
         StepCoordinatesAdd[0] = 1;
       }
     }
+    // Y-axis
     if (StepCoordinatesTarget[1] < StepCoordinatesIs[1])
     {
       digitalWrite(PinStepperDir[1], LOW);
@@ -188,6 +194,7 @@ void MotDir()
         StepCoordinatesAdd[1] = 1;
       }
     }
+    // Z-axis
     if (StepCoordinatesTarget[2] < StepCoordinatesIs[2])
     {
       digitalWrite(PinStepperDir[2], LOW);
@@ -208,28 +215,40 @@ void MotDir()
   }
 }
 
+// Controls motor in X-axis
 void MotCtrlX()
 {
+  // Run forever
   for(;;)
   {
+    // Run while Motor is not on target position
     while(StepCoordinatesTarget[0] != StepCoordinatesIs[0])
     {
+      // Pulse once on stepper control X-axis
       digitalWrite(PinStepperStep[0], HIGH);
       delay(2);
       digitalWrite(PinStepperStep[0], LOW);
-      delay(10);
-      
+      delay(5);
+
+      // Blocks all but following read/write
       OS48_ATOMIC_BLOCK
       {
+        // Count position change
         StepCoordinatesIs[0] += StepCoordinatesAdd[0];
       }
+
+      // Print current X-axis position to serial
       Serial.print("X Is: ");
       Serial.println(StepCoordinatesIs[0]);
     }
+
+    //sleep temporarly (probability to be needed quickly is low)
     task() -> sleep(50);
   }
 }
 
+// Controls motor in Y-axis
+// Detailed description in MotCtrlX(), replace X with Y
 void MotCtrlY()
 {
   for(;;)
@@ -239,7 +258,7 @@ void MotCtrlY()
       digitalWrite(PinStepperStep[1], HIGH);
       delay(2);
       digitalWrite(PinStepperStep[1], LOW);
-      delay(10);
+      delay(5);
       
       OS48_ATOMIC_BLOCK
       {
@@ -252,6 +271,8 @@ void MotCtrlY()
   }
 }
 
+//Controls motor in Z-axis
+// Detailed description in MotCtrlX(), replace X with Z
 void MotCtrlZ()
 {
   for(;;)
@@ -259,9 +280,9 @@ void MotCtrlZ()
     while(StepCoordinatesTarget[2] != StepCoordinatesIs[2])
     {
       digitalWrite(PinStepperStep[2], HIGH);
-      delay(2);
+      delay(1);
       digitalWrite(PinStepperStep[2], LOW);
-      delay(10);
+      delay(2);
       
       OS48_ATOMIC_BLOCK
       {
