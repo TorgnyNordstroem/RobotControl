@@ -26,9 +26,6 @@ void Setup()
   ServoClaw.attach(PinServos[1]);
 
 
-  Serial.println("Calibrating");
-  ModeStartUp();
-
   // Program part: computer/Arduino (Alexander Seiler)
   Serial.println(F("Hello, CC3000!\n"));
 
@@ -96,33 +93,33 @@ void Setup()
   while (!displayConnectionDetails()) {
     delay(1000);
   }
-
-#ifndef CC3000_TINY_DRIVER
-  /* Try looking up www.adafruit.com */
-  uint32_t ip = 0;
-  Serial.print(F("www.adafruit.com -> "));
-  while (ip == 0) {
-    if (!cc3000.getHostByName("www.adafruit.com", &ip)) {
-      Serial.println(F("Couldn't resolve!"));
+  /*
+    #ifndef CC3000_TINY_DRIVER
+    /* Try looking up www.adafruit.com *
+    uint32_t ip = 0;
+    Serial.print(F("www.adafruit.com -> "));
+    /*
+    while (ip == 0) {
+      if (!cc3000.getHostByName("www.adafruit.com", &ip)) {
+        Serial.println(F("Couldn't resolve!"));
+      }
+      delay(500);
     }
-    delay(500);
-  }
-  cc3000.printIPdotsRev(ip);
+    cc3000.printIPdotsRev(ip);
 
-  /* Do a quick ping test on adafruit.com */
-  Serial.print(F("\n\rPinging ")); cc3000.printIPdotsRev(ip); Serial.print("...");
-  uint8_t replies = cc3000.ping(ip, 5);
-  Serial.print(replies); Serial.println(F(" replies"));
-  if (replies)
-    Serial.println(F("Ping successful!"));
-#endif
+    /* Do a quick ping test on adafruit.com *
+    Serial.print(F("\n\rPinging ")); cc3000.printIPdotsRev(ip); Serial.print("...");
+    uint8_t replies = cc3000.ping(ip, 5);
+    Serial.print(replies); Serial.println(F(" replies"));
+    if (replies)
+      Serial.println(F("Ping successful!"));
+    #endif
 
-
+  */
   for (int i = 0; i < lenght; i++)
   {
     buf[i] = sending[i];
   }
-
   Adafruit_CC3000_Client udpclient = cc3000.connectUDP(IPAd, port);
 
 
@@ -135,14 +132,15 @@ void Setup()
   /* add setup code here */
   udpServer.begin();
 
+  Serial.println("Calibrating");
+  ModeStartUp();
 
-  data.x = 200;
-  data.y = 100;
-  data.z = -50; // 90-140: compensation for PC-data
+  data.x = 140;
+  data.y = 90;
+  data.z = 162;
   data.claw_width = 90;
   data.claw_tilt = 90;
-
-
+  time_received = millis();
 
   Serial.println("Setup finished");
 

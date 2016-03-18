@@ -7,14 +7,19 @@ void CalcAbsDiff()
   }
 }
 
+void ImportAngles()
+{
+  AnglesTarget[0] = int(data.z);
+  AnglesTarget[1] = int(data.x);
+  AnglesTarget[2] = int(data.y);
+}
+
 void ConvCoordsToAngle()
 {
   CoordsTarget[0] = int(data.z) + 140;
   CoordsTarget[1] = int(data.x);
   CoordsTarget[2] = int(data.y);
 
-  AnglesTarget[2] = CoordsTarget[2];
-  
   Rz = CoordsTarget[0] - e4;
   Rx = CoordsTarget[1] - e1;
   
@@ -27,6 +32,7 @@ void ConvCoordsToAngle()
   
   AnglesTarget[0] = 90 + Gamma + Phi;
   AnglesTarget[1] = (360 - (Beta + AnglesTarget[0]));
+  AnglesTarget[2] = CoordsTarget[2];
 }
 
 void ConvAngleStep()

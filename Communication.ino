@@ -1,7 +1,17 @@
+//im setup am ende muss sein: und time_received=millis();
+
 void Communication()
 {
   //update 11.02.2016: ich versuche bestimmte daten zu empfangen vom computer, sofern ich diese bekommen habe sende ich zureck und behandle mich als connected
+  unsigned long time_t = millis();
+  if (time_t - time_received > 6000)
+  {
+    //Serial.println("Alive not ok!");
+  }
 
+  /*
+    Serial.println(time_t);
+    Serial.println(time_t-time_received);*/
   while (connected == false)
   {
 
@@ -38,7 +48,8 @@ void Communication()
         connected = true;
         Serial.println(" Connected");
         udpclient.write(buf, size);
-      }
+      }//Computer_alive
+
       else
       {
         Serial.println("Data not matching!");
@@ -63,62 +74,68 @@ void Communication()
 
     for (int i = 0; i < n; ++i) {
       uint16_t c = buffer[i];
-      Serial.print("c: "); Serial.println(c);
+      //Serial.print("c: "); Serial.println(c);
       // ... Do whatever you want with 'c' here ...
     }
     if (buffer[5] == 2)
     {
       if (buffer[0] < 0)
       {
-      data.x = 256 + buffer[0];
+        data.x = 256 + buffer[0];
       }
       else
       {
         data.x = buffer[0];
       }
-      
+
       if (buffer[1] < 0)
       {
-      data.y = 256 + buffer[1];
+        data.y = 256 + buffer[1];
       }
       else
       {
         data.y = buffer[1];
       }
-      
+
       if (buffer[2] < 0)
       {
-      data.z = 256 + buffer[2];
+        data.z = 256 + buffer[2];
       }
       else
       {
         data.z = buffer[2];
       }
-      
+
       if (buffer[3] < 0)
       {
-      data.claw_width = 256 + buffer[3];
+        data.claw_width = 256 + buffer[3];
       }
       else
       {
         data.claw_width = buffer[3];
       }
-      
+
       if (buffer[4] < 0)
       {
-      data.claw_tilt = 256 + buffer[4];
+        data.claw_tilt = 256 + buffer[4];
       }
       else
       {
         data.claw_tilt = buffer[4];
       }
-      
+/*
       Serial.println("###");
       Serial.println(data.x);
       Serial.println(data.y);
       Serial.println(data.z);
       Serial.println(data.claw_width);
-      Serial.println(data.claw_tilt);
+      Serial.println(data.claw_tilt);*/
+    }
+    else if (buffer[0] == 'C' && buffer[1] == 'o' && buffer[2] == 'm' && buffer[3] == 'p' && buffer[4] == 'u' && buffer[5] == 't' && buffer[6] == 'e' && buffer[7] == 'r' && buffer[8] == '_' && buffer[9] == 'a' && buffer[10] == 'l' && buffer[11] == 'i' && buffer[12] == 'v' && buffer[13] == 'e')
+    {
+      Serial.println("Alive_Data matching!");
+      time_received = millis();
+      Serial.println(time_received);
     }
   }
 

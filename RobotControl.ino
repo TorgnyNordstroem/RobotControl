@@ -1,24 +1,25 @@
 #include <Servo.h>
 
-const int PinSense[3] = {37, 27, 47};
-const int PinStepperStep[3] = {50, 40, 30};
-const int PinStepperDir[3] = {52, 42, 32}; 
+const int PinSense[3] = {40, 32, 24};
+const int PinStepperStep[3] = {42, 34, 26};//50
+const int PinStepperDir[3] = {44, 36, 28};//52
 const int PinServos[2] = {6, 7};
 const int PinSpeed[3][3] =
 {
   //Mode 0, Mode 1, Mode 2
   // z-axis
-  {49, 51, 53},
+  {41, 43, 45},
   // x-axis
-  {39, 41, 43},
+  {33, 35, 37},
   // y-axis
-  {29, 31, 33},
+  {25, 27, 29},
 };
 
 /* Array used to determin speed of motors
     {Mode 0, Mode 1, Mode 2, Multiplier}
     Mode referes to the speed controlers on the stepper chip
 */
+const int SpeedMax[3] = {2, 2, 2};
 const int SpeedArray[6][4] =
 {
   // 1/32 Step
@@ -36,7 +37,7 @@ const int SpeedArray[6][4] =
 };
 
 int StartPosAngles[3] = {90, 140, 0}; // Axis Angles
-int StartPosTarget[5] = {200, 100, 90, 90, 90}; // 0, 1, 2: Axis coordinates; 3, 4: Servo angles
+int StartPosTarget[5] = {162, 140, 90, 90, 90}; // 0, 1, 2: Axis coordinates; 3, 4: Servo angles
 
 int CoordsTarget[3] = {0, 0, 0};
 
@@ -65,7 +66,7 @@ int Phi;
 int Rx;
 int Rz;
 
-int CycleTime = 10;
+int CycleTime = 7;
 
 
 
@@ -132,6 +133,7 @@ IPAddress Empfangsadresse = IPAddress(192, 86, 43, 255);
 uint32_t IPAd = cc3000.IP2U32(192, 168, 1, 255);
 uint16_t port = 11000;
 
+unsigned long time_received = 0;
 
 // Definitions end
 
@@ -161,25 +163,29 @@ void loop() {
     CoordsTarget[0] = 180;
     CoordsTarget[1] = 200;
     }*//*
-    // Debug info
-    Serial.println("");
-    Serial.println("");
-    Serial.println("Coords");
-    Serial.println(CoordsTarget[0]);
-    Serial.println(CoordsTarget[1]);
-    Serial.println(CoordsTarget[2]);
-    Serial.println("Target");
-    Serial.println(StepsTarget[0]);
-    Serial.println(StepsTarget[1]);
-    Serial.println(StepsTarget[2]);
-    Serial.println("Is");
-    Serial.println(StepsIs[0]);
-    Serial.println(StepsIs[1]);
-    Serial.println(StepsIs[2]);
-    Serial.println("Speed");
-    Serial.println(Speed[0]);
-    Serial.println(Speed[1]);
-    Serial.println(Speed[2]);
+  // Debug info
+  Serial.println("");
+  Serial.println("");
+  Serial.println("Coords");
+  Serial.println(CoordsTarget[0]);
+  Serial.println(CoordsTarget[1]);
+  Serial.println(CoordsTarget[2]);
+  Serial.println("Angles");
+  Serial.println(AnglesTarget[0]);
+  Serial.println(AnglesTarget[1]);
+  Serial.println(AnglesTarget[2]);
+  Serial.println("Target");
+  Serial.println(StepsTarget[0]);
+  Serial.println(StepsTarget[1]);
+  Serial.println(StepsTarget[2]);
+  Serial.println("Is");
+  Serial.println(StepsIs[0]);
+  Serial.println(StepsIs[1]);
+  Serial.println(StepsIs[2]);
+  Serial.println("Speed");
+  Serial.println(Speed[0]);
+  Serial.println(Speed[1]);
+  Serial.println(Speed[2]);
   /*
   if ()
   {
@@ -191,10 +197,9 @@ void loop() {
   }
 */
   Communication();
-  ConvCoordsToAngle();
+  ImportAngles();
   ConvAngleStep();
   CalcAbsDiff();
-  //SensorCheck();
   CtrlSpeed();
   CtrlMotor();
   CtrlServo();
