@@ -18,6 +18,8 @@ Scheduler* scheduler = Scheduler::get(); //Get the instance
 //Declare the task pointers as global vars to use them in the task functions.
 Task* task1 = NULL; 
 Task* task2 = NULL;
+Task* task3 = NULL;
+Task* task4 = NULL;
 
 
 int StartComplete = 0;
@@ -81,8 +83,10 @@ void setup() {
   }
 
   Serial.println("Creating tasks...");
-  task1 = scheduler -> createTask(&MotCtrlX, 100, PrHigh);
-  task2 = scheduler -> createTask(&StepCooChg, 100, PrLow);
+  task1 = scheduler -> createTask(&MotCtrlX, 100, PrLow);
+  task2 = scheduler -> createTask(&MotCtrlY, 100, PrLow);
+  task3 = scheduler -> createTask(&MotCtrlZ, 100, PrLow);
+  task4 = scheduler -> createTask(&StepCooChg, 100, PrLow);
   
   scheduler -> setStackOverflowFnc(&fncSO);
   scheduler -> setSchedulingPolicy(SchPolicyIntelligent);
@@ -112,8 +116,12 @@ void StepCooChg()
 {
   for(;;)
   {
-    StepCoordinatesTarget[0] = 1200;
+    //StepCoordinatesTarget[0] = 1200;
+    //StepCoordinatesTarget[1] = 1200;
+    StepCoordinatesTarget[2] = 1200;
     Serial.println(StepCoordinatesTarget[0]);
+    Serial.println(StepCoordinatesTarget[1]);
+    Serial.println(StepCoordinatesTarget[2]);
     task() -> sleep(30000);
   }
 }
@@ -128,11 +136,12 @@ void MotCtrlX()
       digitalWrite(PinStepperStep[0], HIGH);
       delay(1);
       digitalWrite(PinStepperStep[0], LOW);
-      delay(1);
+      delay(2);
       
       OS48_ATOMIC_BLOCK
       {
         StepCoordinatesIs[0] += StepCoordinatesAdd[0];
+        Serial.print("X-Axis");
         Serial.println(StepCoordinatesIs[0]);
       }
     }
@@ -140,6 +149,49 @@ void MotCtrlX()
   }
 }
 
+void MotCtrlY()
+{
+  for(;;)
+  {
+    while(StepCoordinatesTarget[1] != StepCoordinatesIs[1])
+    {
+      digitalWrite(PinStepperStep[1], HIGH);
+      delay(1);
+      digitalWrite(PinStepperStep[1], LOW);
+      delay(1);
+      
+      OS48_ATOMIC_BLOCK
+      {
+        StepCoordinatesIs[1] += StepCoordinatesAdd[1];
+        Serial.print("Y-Axis");
+        Serial.println(StepCoordinatesIs[1]);
+      }
+    }
+    task() -> sleep(10);
+  }
+}
+
+void MotCtrlZ()
+{
+  for(;;)
+  {
+    while(StepCoordinatesTarget[2] != StepCoordinatesIs[2])
+    {
+      digitalWrite(PinStepperStep[2], HIGH);
+      delay(1);
+      digitalWrite(PinStepperStep[2], LOW);
+      delay(2);
+      
+      OS48_ATOMIC_BLOCK
+      {
+        StepCoordinatesIs[2] += StepCoordinatesAdd[2];
+        Serial.print("Z-Axis");
+        Serial.println(StepCoordinatesIs[2]);
+      }
+    }
+    task() -> sleep(10);
+  }
+}
 
 
 
@@ -154,6 +206,8 @@ void ResetCoorX()
   RealAnglesTarget[0] = 0;
 }
 
+
+//function responsible at memory overflow 
 void fncSO()
 {
   Serial.println("Stack overflow!");
