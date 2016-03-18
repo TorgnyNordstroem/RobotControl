@@ -4,6 +4,8 @@ Arduino code used to control our robotic arm
 ## RobotControl 1.0.0
 
 ## RobotControl 0.9.0
+* Added key-control mode
+* Moved internally to angles instead of coords (more stable and accurate)
 
 ## RobotControl 0.8.0
 * Added communication capabilities
