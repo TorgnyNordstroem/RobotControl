@@ -1,17 +1,70 @@
-void ModeContinous()
+void ModeKey()
 {
-  // Vary CycleTime
+  switch (data2.z) {
+    case 1:
+      StepsTarget[0]++;
+      break;
+    case 2:
+      StepsTarget[0]--;
+      break;
+    default:
+      break;
+  }
+  switch (data2.x) {
+    case 1:
+      StepsTarget[1]++;
+      break;
+    case 2:
+      StepsTarget[1]--;
+      break;
+    default:
+      break;
+  }
+  switch (data2.y) {
+    case 1:
+      StepsTarget[2]++;
+      break;
+    case 2:
+      StepsTarget[2]--;
+      break;
+    default:
+      break;
+  }
+  switch (data2.claw_tilt) {
+    case 1:
+      AnglesTarget[3] += 0.2;
+      break;
+    case 2:
+      AnglesTarget[3] -= 0.2;
+      break;
+    default:
+      break;
+  }
+  switch (data2.claw_width) {
+    case 1:
+      AnglesTarget[4] += 0.2;
+      break;
+    case 2:
+      AnglesTarget[4] -= 0.2;
+      break;
+    default:
+      break;
+  }
 }
 
 void ModeP2P()
 {
-  CycleTime = 10;
+  AnglesTarget[0] = double(data.alpha);
+  AnglesTarget[1] = double(data.beta);
+  AnglesTarget[2] = double(data.y);
+  AnglesTarget[3] = double(data.claw_tilt) + 5.0;
+  AnglesTarget[4] = double(data.claw_width);
 }
 
 void ModeStartUp()
 {
-  ServoAngle.write(AnglesTarget[3]);
-  ServoClaw.write(AnglesTarget[4]);
+  ServoAngle.write(95);
+  ServoClaw.write(90);
   while (digitalRead(PinSense[2]) == LOW)
   {
     StepsTarget[2]--;
@@ -34,7 +87,7 @@ void ModeStartUp()
 
   do
   {
-    ConvAngleStep();
+    ConvAngleStepP2P();
     StepsTarget[2] = StepsIs[2];
     CtrlMotor();
     delay(3);
@@ -42,7 +95,7 @@ void ModeStartUp()
   Serial.println("A");
 
   StepsTarget[1] = StepsIs[1];
-  
+
   while (digitalRead(PinSense[0]) == LOW)
   {
     StepsTarget[0]--;
@@ -53,7 +106,6 @@ void ModeStartUp()
 
   for (int i = 0; i < 3; i++)
   {
-    CoordsTarget[i] = StartPosTarget[i];
     StepsIs[i] = StartPosAngles[i] / 0.05625;
   }
 }
