@@ -6,7 +6,7 @@ void Communication()
   {
 
     /*if (ones == false) { Serial.println("LOOP:");  }*/
-    
+
 
     if (udpServer.available())
     {
@@ -62,69 +62,69 @@ void Communication()
     Serial.print("n: "); Serial.println(n);
 
     for (int i = 0; i < n; ++i) {
-      uint8_t c = buffer[i];
+      uint16_t c = buffer[i];
       Serial.print("c: "); Serial.println(c);
       // ... Do whatever you want with 'c' here ...
-      if (buffer[0] == '2')
-      {
-        for (int i = 2; i < UDP_READ_BUFFER_SIZE; i++)
-        {
-          int zehler = 0;
-          if (buffer[i] != ',' && zehler == 0)
-          {
-            dta_str.x = dta_str.x + buffer[i];
-          }
-          else if (buffer[i] != ',' && zehler == 1)
-          {
-            dta_str.y = dta_str.y + buffer[i];
-          }
-          else if (buffer[i] != ',' && zehler == 2)
-          {
-            dta_str.z = dta_str.z + buffer[i];
-          }
-          else if (buffer[i] != ',' && zehler == 3)
-          {
-            dta_str.claw_tilt = dta_str.claw_tilt + buffer[i];
-          }
-          else if (buffer[i] != ',' && zehler == 4)
-          {
-            dta_str.claw_width = dta_str.claw_width + buffer[i];
-          }
-          else if (buffer[i] == ';')
-          {
-            zehler++;
-            i = UDP_READ_BUFFER_SIZE;
-          }
-          else
-          {
-            zehler++;
-          }
-        }
-        Serial.println(dta_str.x);
-        Serial.println(dta_str.y);
-        Serial.println(dta_str.z);
-        Serial.println(dta_str.claw_tilt);
-        Serial.println(dta_str.claw_width);
-
-        data.x = dta_str.x.toInt();
-        data.y = dta_str.y.toInt();
-        data.z = dta_str.z.toInt();
-        
-        Serial.println(data.x);
-        Serial.println(data.y);
-        Serial.println(data.z);
-        data.claw_tilt = dta_str.claw_tilt.toInt();
-        data.claw_width = dta_str.claw_width.toInt();
-      }
     }
-    for (int i = 0; i < n; i++)
+    if (buffer[5] == 2)
     {
-      Serial.print(buffer[i]);
+      if (buffer[0] < 0)
+      {
+      data.x = 256 + buffer[0];
+      }
+      else
+      {
+        data.x = buffer[0];
+      }
+      
+      if (buffer[1] < 0)
+      {
+      data.y = 256 + buffer[1];
+      }
+      else
+      {
+        data.y = buffer[1];
+      }
+      
+      if (buffer[2] < 0)
+      {
+      data.z = 256 + buffer[2];
+      }
+      else
+      {
+        data.z = buffer[2];
+      }
+      
+      if (buffer[3] < 0)
+      {
+      data.claw_width = 256 + buffer[3];
+      }
+      else
+      {
+        data.claw_width = buffer[3];
+      }
+      
+      if (buffer[4] < 0)
+      {
+      data.claw_tilt = 256 + buffer[4];
+      }
+      else
+      {
+        data.claw_tilt = buffer[4];
+      }
+      
+      Serial.println("###");
+      Serial.println(data.x);
+      Serial.println(data.y);
+      Serial.println(data.z);
+      Serial.println(data.claw_width);
+      Serial.println(data.claw_tilt);
     }
-
-    //hier kennte ihr code stehen mit data als coordinatenhalter
   }
+
+  //hier kennte ihr code stehen mit data als coordinatenhalter
 }
+
 
 
 

@@ -1,9 +1,9 @@
 #include <Servo.h>
 
-const int PinSense[3] = {27, 37, 47};
-const int PinEnable[3] = {28, 38, 48};
+const int PinSense[3] = {28, 37, 47};
+const int PinEnable[3] = {27, 38, 48};
 const int PinStepperStep[3] = {30, 40, 50};
-const int PinStepperDir[3] = {32, 42, 52};
+const int PinStepperDir[3] = {32, 42, 52}; 
 const int PinServos[2] = {6, 7};
 const int PinSpeed[3][3] =
 {
@@ -36,8 +36,8 @@ const int SpeedArray[6][4] =
   {LOW, LOW, LOW, 32}
 };
 
-int StartPosAngles[3] = {90, 140, -90}; // Axis Angles
-int StartPosTarget[5] = {200, 100, 0, 90, 90}; // 0, 1, 2: Axis coordinates; 3, 4: Servo angles
+int StartPosAngles[3] = {90, 140, 0}; // Axis Angles
+int StartPosTarget[5] = {200, 100, 90, 90, 90}; // 0, 1, 2: Axis coordinates; 3, 4: Servo angles
 
 int CoordsTarget[3] = {0, 0, 0};
 
@@ -94,11 +94,11 @@ bool checked = false;
 
 struct coords
 {
-  int x;
-  int y;
-  int z;
-  int claw_tilt;
-  int claw_width;
+  unsigned int x;
+  unsigned int y;
+  unsigned int z;
+  unsigned int claw_tilt;
+  unsigned int claw_width;
 };
 
 typedef struct coords Coords;

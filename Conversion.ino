@@ -1,12 +1,9 @@
 void ConvCoordsToAngle()
 {
-  CoordsTarget[0] = int(data.x);
-  CoordsTarget[1] = int(data.y);
-  CoordsTarget[2] = int(data.z);
-
-  Serial.println(CoordsTarget[0]);
-  Serial.println(CoordsTarget[1]);
-  Serial.println(CoordsTarget[2]);
+  CoordsTarget[0] = int(data.z) + 140;
+  CoordsTarget[1] = int(data.x);
+  CoordsTarget[2] = int(data.y);
+  
   Rz = CoordsTarget[0] - e4;
   Rx = CoordsTarget[1] - e1;
   

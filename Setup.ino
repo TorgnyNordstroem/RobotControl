@@ -36,9 +36,10 @@ void Setup()
   ServoClaw.attach(PinServos[1]);
 
 
-  // Program part: computer/Arduino (Alexander Seiler)
   Serial.println("Calibrating");
   ModeStartUp();
+
+  // Program part: computer/Arduino (Alexander Seiler)
   Serial.println(F("Hello, CC3000!\n"));
 
   displayDriverMode();
@@ -145,6 +146,11 @@ void Setup()
   udpServer.begin();
 
 
+  data.x = 200;
+  data.y = 100;
+  data.z = -50; // 90-140: compensation for PC-data
+  data.claw_width = 90;
+  data.claw_tilt = 90;
 
 
 

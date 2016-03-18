@@ -15,7 +15,7 @@ void ModeStartUp()
 
   for (int i = 2; i > 0; i--)
   {
-    while (digitalRead(PinSense[i]) == LOW)
+    while (digitalRead(PinSense[i]) == HIGH)
     {
       StepsTarget[i]--;
       CtrlSpeed();
@@ -35,7 +35,7 @@ void ModeStartUp()
     delay(3);
   } while (StepsTarget[0] != StepsIs[0] && StepsTarget[1] != StepsIs[1]);
 
-  while (digitalRead(PinSense[0]) == LOW)
+  while (digitalRead(PinSense[0]) == HIGH)
   {
     StepsTarget[0]++;
     CtrlMotor();
