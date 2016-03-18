@@ -18,17 +18,7 @@ void Setup()
   }
   for (int i = 0; i < 3; i++)
   {
-    pinMode(PinEnable[i], OUTPUT);
-  }
-  for (int i = 0; i < 3; i++)
-  {
     pinMode(PinSense[i], INPUT_PULLUP);
-  }
-
-  Serial.println("Enabling Steppers");
-  for (int i = 0; i < 3; i++)
-  {
-    digitalWrite(PinEnable[i], HIGH);
   }
 
   Serial.println("Initializing servos");

@@ -1,19 +1,18 @@
 #include <Servo.h>
 
-const int PinSense[3] = {28, 37, 47};
-const int PinEnable[3] = {27, 38, 48};
-const int PinStepperStep[3] = {30, 40, 50};
-const int PinStepperDir[3] = {32, 42, 52}; 
+const int PinSense[3] = {37, 27, 47};
+const int PinStepperStep[3] = {50, 40, 30};
+const int PinStepperDir[3] = {52, 42, 32}; 
 const int PinServos[2] = {6, 7};
 const int PinSpeed[3][3] =
 {
   //Mode 0, Mode 1, Mode 2
   // z-axis
-  {29, 31, 33},
+  {49, 51, 53},
   // x-axis
   {39, 41, 43},
   // y-axis
-  {49, 51, 53}
+  {29, 31, 33},
 };
 
 /* Array used to determin speed of motors
@@ -161,22 +160,27 @@ void loop() {
     {
     CoordsTarget[0] = 180;
     CoordsTarget[1] = 200;
-    }
-    /* Debug info
+    }*//*
+    // Debug info
     Serial.println("");
     Serial.println("");
-    Serial.println("Z");
+    Serial.println("Coords");
     Serial.println(CoordsTarget[0]);
+    Serial.println(CoordsTarget[1]);
+    Serial.println(CoordsTarget[2]);
     Serial.println("Target");
     Serial.println(StepsTarget[0]);
     Serial.println(StepsTarget[1]);
+    Serial.println(StepsTarget[2]);
     Serial.println("Is");
     Serial.println(StepsIs[0]);
     Serial.println(StepsIs[1]);
+    Serial.println(StepsIs[2]);
     Serial.println("Speed");
     Serial.println(Speed[0]);
     Serial.println(Speed[1]);
-  *//*
+    Serial.println(Speed[2]);
+  /*
   if ()
   {
   ModeContinous();
