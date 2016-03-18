@@ -1,51 +1,29 @@
 void Setup()
 {
   Serial.begin(9600);
-  
-  Serial.println("Setting IO-Ports...");
-  for (i = 0; i <= 3; i++)
-  {
-    pinMode(PinInterrupt[i], INPUT);
-  }
-  for (i = 0; i <= 3; i++)
+
+  Serial.println("Setup starting");
+
+  Serial.println("Initializing IO-Ports");
+  for (int i = 0; i <= 3; i++)
   {
     pinMode(PinStepperDir[i], OUTPUT);
-  }
-  for (i = 0; i <= 3; i++)
-  {
     pinMode(PinStepperStep[i], OUTPUT);
   }
-  for (i = 0; i <= 2; i++)
+  for (int i = 0; i <= 10; i++)
   {
-    pinMode(PinServoClaw[i], OUTPUT);
-  }
-  for (i = 0; i <= 6; i++)
-  {
-    pinMode(PinManInput[i], INPUT);
-    digitalWrite(PinManInput[i], HIGH);
-    
+    pinMode(PinManInput[i], INPUT_PULLUP);
   }
 
-  Serial.println("Creating tasks...");
-  task1 = scheduler -> createTask(&MotCtrlX, 100, PrHigh);
-  task2 = scheduler -> createTask(&MotCtrlY, 100, PrHigh);
-  task3 = scheduler -> createTask(&MotCtrlZ, 100, PrHigh);
-  task4 = scheduler -> createTask(&MotDir, 100, PrLowest);
-  //task5 = scheduler -> createTask(&ServoCtrl, 100, PrLow);
-  task5 = scheduler -> createTask(&CooChgUserX, 100, PrLow);
-  task6 = scheduler -> createTask(&CooChgUserY, 100, PrLow);
-  task7 = scheduler -> createTask(&CooChgUserZ, 100, PrLow);
-  
-  scheduler -> setStackOverflowFnc(&fncSO);
-  scheduler -> setSchedulingPolicy(SchPolicyIntelligent);
+  Serial.println("Initializing servos");
+  ServoAngle.attach(PinServos[0]);
+  ServoClaw.attach(PinServos[1]);
+  RealAnglesTarget[3] = 90;
+  RealAnglesTarget[4] = 90;
+  ServoAngle.write(RealAnglesTarget[3]);
+  ServoClaw.write(RealAnglesTarget[4]);
 
-  Serial.println("Calculating initial stepper settings...");
-  
-  Serial.println("Attaching servos");
-  ServoAngle.attach(PinServoClaw[0]);
-  ServoClaw.attach(PinServoClaw[1]);
-
-  Serial.println("Attaching interrupts...");
-  attachInterrupt(digitalPinToInterrupt(PinInterrupt[0]), ResetCoorX, FALLING); //ResetCoor0 is executed when InterruptPins[0] receives a falling edge signal
+  Serial.println("Setup finished");
+  delay(20);
 }
 
