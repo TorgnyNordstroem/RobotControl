@@ -9,7 +9,8 @@ void ConvCoordsToAngle()
   Phi = acos((pow(e2, 2) + pow(Rabs, 2) - pow(e3, 2)) / (2*e2*Rabs)) * (180 / PI);
   
   AnglesTarget[0] = 90 + Gamma + Phi;
-  AnglesTarget[1] = -acos((pow(e2, 2) + pow(e3, 2) - pow(Rabs, 2)) / (2*e2*e3)) * (180 / PI);
+  int TrueAngle = acos((pow(e2, 2) + pow(e3, 2) - pow(Rabs, 2)) / (2*e2*e3)) * (180 / PI);
+  AnglesTarget[1] = TrueAngle + AnglesTarget[0];
 }
 
 void ConvAngleStep()
