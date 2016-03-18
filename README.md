@@ -1,6 +1,9 @@
 # RobotControl
 Arduino code used to control our robotic arm
 
+## RobotControl 0.4.0
+* Moved tasks and functions into seperate files
+
 ## RobotControl 0.3.0
 * Added DIR control
 
