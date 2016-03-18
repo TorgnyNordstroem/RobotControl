@@ -12,18 +12,23 @@ void ModeStartUp()
 {
   ServoAngle.write(AnglesTarget[3]);
   ServoClaw.write(AnglesTarget[4]);
-
-  for (int i = 2; i > 0; i--)
+  while (digitalRead(PinSense[2]) == LOW)
   {
-    while (digitalRead(PinSense[i]) == LOW)
-    {
-      StepsTarget[i]--;
-      CtrlSpeed();
-      CtrlMotor();
-      delay(3);
-    }
+    StepsTarget[2]--;
+    CtrlSpeed();
+    CtrlMotor();
+    delay(3);
   }
-  
+  Serial.println("Y");
+  while (digitalRead(PinSense[1]) == LOW)
+  {
+    StepsTarget[1]--;
+    CtrlSpeed();
+    CtrlMotor();
+    delay(3);
+  }
+  Serial.println("X");
+
   AnglesTarget[0] = -65;
   AnglesTarget[1] = 65;
 
@@ -33,13 +38,18 @@ void ModeStartUp()
     StepsTarget[2] = StepsIs[2];
     CtrlMotor();
     delay(3);
-  } while (StepsTarget[0] != StepsIs[0] && StepsTarget[1] != StepsIs[1]);
+  } while (StepsTarget[0] != StepsIs[0]);
+  Serial.println("A");
 
+  StepsTarget[1] = StepsIs[1];
+  
   while (digitalRead(PinSense[0]) == LOW)
   {
-    StepsTarget[0]++;
+    StepsTarget[0]--;
     CtrlMotor();
+    delay(3);
   }
+  Serial.println("Z");
 
   for (int i = 0; i < 3; i++)
   {

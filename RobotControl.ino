@@ -1,26 +1,25 @@
 #include <Servo.h>
-//beta 195°
 
-const int PinSense[3] = {27, 37, 47};
-const int PinEnable[3] = {28, 38, 48};
-const int PinStepperStep[3] = {30, 40, 50};
-const int PinStepperDir[3] = {32, 42, 52};
-const int PinServos[2] = {2, 3};
+const int PinSense[3] = {40, 32, 24};
+const int PinStepperStep[3] = {42, 34, 26};//50
+const int PinStepperDir[3] = {44, 36, 28};//52
+const int PinServos[2] = {6, 7};
 const int PinSpeed[3][3] =
 {
   //Mode 0, Mode 1, Mode 2
   // z-axis
-  {29, 31, 33},
+  {41, 43, 45},
   // x-axis
-  {39, 41, 43},
+  {33, 35, 37},
   // y-axis
-  {49, 51, 53}
+  {25, 27, 29},
 };
 
 /* Array used to determin speed of motors
     {Mode 0, Mode 1, Mode 2, Multiplier}
     Mode referes to the speed controlers on the stepper chip
 */
+const int SpeedMax[3] = {2, 2, 2};
 const int SpeedArray[6][4] =
 {
   // 1/32 Step
@@ -37,8 +36,8 @@ const int SpeedArray[6][4] =
   {LOW, LOW, LOW, 32}
 };
 
-int StartPosAngles[3] = {90, 140, -90}; // Axis Angles
-int StartPosTarget[5] = {200, 100, 0, 90, 90}; // 0, 1, 2: Axis coordinates; 3, 4: Servo angles
+int StartPosAngles[3] = {90, 140, 0}; // Axis Angles
+int StartPosTarget[5] = {162, 140, 90, 90, 90}; // 0, 1, 2: Axis coordinates; 3, 4: Servo angles
 
 int CoordsTarget[3] = {0, 0, 0};
 
@@ -67,7 +66,77 @@ int Phi;
 int Rx;
 int Rz;
 
-int CycleTime = 10;
+int CycleTime = 7;
+
+
+
+// Program part: computer/Arduino (Alexander Seiler)
+#include <Adafruit_CC3000_Server.h>
+#include <Adafruit_CC3000.h>
+#include <SPI.h>
+#include <ccspi.h>
+
+#include <UDPServer.h>
+#include <string.h>
+#include "utility/debug.h"
+
+
+#define UDP_READ_BUFFER_SIZE 30
+#define LISTEN_PORT_UDP 11001
+UDPServer udpServer(LISTEN_PORT_UDP);
+
+char sending[] = "ROBOTIC-ARM";
+char pw[] = "robotic_arm";
+char retpw[] = "test";
+const int lenght = 12;
+bool connected = false;
+bool checked = false;
+
+struct coords
+{
+  unsigned int x;
+  unsigned int y;
+  unsigned int z;
+  unsigned int claw_tilt;
+  unsigned int claw_width;
+};
+
+typedef struct coords Coords;
+
+struct str_coords
+{
+  String x;
+  String y;
+  String z;
+  String claw_tilt;
+  String claw_width;
+};
+
+typedef struct str_coords STR_COORDS;
+
+Coords data;
+
+
+size_t size = strlen(pw);
+uint8_t buf[lenght];
+
+#define ADAFRUIT_CC3000_IRQ   3
+#define ADAFRUIT_CC3000_VBAT  5
+#define ADAFRUIT_CC3000_CS    10
+Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT, SPI_CLOCK_DIVIDER);
+
+#define WLAN_SSID       "ROBOTIC_ARM"
+#define WLAN_PASS       "robotest"
+#define WLAN_SECURITY   WLAN_SEC_WPA2
+
+IPAddress Empfangsadresse = IPAddress(192, 86, 43, 255);
+uint32_t IPAd = cc3000.IP2U32(192, 168, 1, 255);
+uint16_t port = 11000;
+
+unsigned long time_received = 0;
+
+// Definitions end
+
 
 void setup() {
   Setup();
@@ -93,35 +162,44 @@ void loop() {
     {
     CoordsTarget[0] = 180;
     CoordsTarget[1] = 200;
-    }
-    /* Debug info
-    Serial.println("");
-    Serial.println("");
-    Serial.println("Z");
-    Serial.println(CoordsTarget[0]);
-    Serial.println("Target");
-    Serial.println(StepsTarget[0]);
-    Serial.println(StepsTarget[1]);
-    Serial.println("Is");
-    Serial.println(StepsIs[0]);
-    Serial.println(StepsIs[1]);
-    Serial.println("Speed");
-    Serial.println(Speed[0]);
-    Serial.println(Speed[1]);
-  *//*
+    }*//*
+  // Debug info
+  Serial.println("");
+  Serial.println("");
+  Serial.println("Coords");
+  Serial.println(CoordsTarget[0]);
+  Serial.println(CoordsTarget[1]);
+  Serial.println(CoordsTarget[2]);
+  Serial.println("Angles");
+  Serial.println(AnglesTarget[0]);
+  Serial.println(AnglesTarget[1]);
+  Serial.println(AnglesTarget[2]);
+  Serial.println("Target");
+  Serial.println(StepsTarget[0]);
+  Serial.println(StepsTarget[1]);
+  Serial.println(StepsTarget[2]);
+  Serial.println("Is");
+  Serial.println(StepsIs[0]);
+  Serial.println(StepsIs[1]);
+  Serial.println(StepsIs[2]);
+  Serial.println("Speed");
+  Serial.println(Speed[0]);
+  Serial.println(Speed[1]);
+  Serial.println(Speed[2]);
+  /*
   if ()
   {
-    ModeContinous();
+  ModeContinous();
   }
   else
   {
-    ModeP2P();
+  ModeP2P();
   }
 */
-  ConvCoordsToAngle();
+  Communication();
+  ImportAngles();
   ConvAngleStep();
   CalcAbsDiff();
-  //SensorCheck();
   CtrlSpeed();
   CtrlMotor();
   CtrlServo();
