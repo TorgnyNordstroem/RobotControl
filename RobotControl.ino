@@ -1,6 +1,7 @@
 #include <Servo.h>
 
 int i = 0;
+int Start = 0;
 const int PinLED[2] = {0, 2};
 const int PinSense[3] = {41, 33, 25};
 const int PinStepperStep[3] = {43, 35, 27};
@@ -112,7 +113,7 @@ struct str_coords
 
 typedef struct str_coords STR_COORDS;
 
-struct direction
+struct direction_
 {
   unsigned int x;
   unsigned int y;
@@ -121,7 +122,7 @@ struct direction
   unsigned int claw_width;
 };
 
-typedef struct direction DIRECTION;
+typedef struct direction_ DIRECTION;
 
 
 Coords data;
@@ -158,56 +159,45 @@ void loop() {
     Serial.println("");
     Serial.println("");
     Serial.println("Angles");
-    Serial.println(AnglesTarget[0]);
+    Serial.println(data2.z);
+    Serial.println(data2.x);
+    Serial.println(data2.y);
+    Serial.println(data2.claw_tilt);
+    Serial.println(data2.claw_width);/*
     Serial.println(AnglesTarget[1]);
     Serial.println(AnglesTarget[2]);
-    Serial.println("Target");
-    Serial.println(StepsTarget[0]);
-    Serial.println(StepsTarget[1]);
-    Serial.println(StepsTarget[2]);
-    Serial.println("Is");
-    Serial.println(StepsIs[0]);
-    Serial.println(StepsIs[1]);
-    Serial.println(StepsIs[2]);/*
-    Serial.println("Speed");
-    Serial.println(Speed[0]);
-    Serial.println(Speed[1]);
-    Serial.println(Speed[2]);
-    /*
-    if ()
-    {
-    ModeContinous();
-    }
-    else
-    {
-    ModeP2P();
-    }
-  *//*
-  while (i < 50)
-  {
-  digitalWrite(PinLED[0], HIGH);
-  digitalWrite(PinLED[1], HIGH);
-  i++;
-  }
-  while (i > 0)
-  {
-  digitalWrite(PinLED[0], LOW);
-  digitalWrite(PinLED[1], LOW);
-  i--;
-  }*/
-  
+    Serial.println("Angles");
+    Serial.println(AnglesTarget[0]);
+    Serial.println(AnglesTarget[1]);
+    Serial.println(AnglesTarget[2]);*//*
+  Serial.println("Target");
+  Serial.println(StepsTarget[0]);
+  Serial.println(StepsTarget[1]);
+  Serial.println(StepsTarget[2]);
+  Serial.println("Is");
+  Serial.println(StepsIs[0]);
+  Serial.println(StepsIs[1]);
+  Serial.println(StepsIs[2]);/*
+  Serial.println("Speed");
+  Serial.println(Speed[0]);
+  Serial.println(Speed[1]);
+  Serial.println(Speed[2]);*/
+  //Serial.println(mode);
+
   Communication();
   
   if (mode = 0)
   {
     ModeP2P();
+    ConvAngleStepP2P();
+    CycleTime = 10;
   }
   else if (mode = 1)
   {
     ModeKey();
+    CycleTime = 3;
   }
-  
-  ConvAngleStep();
+
   CalcAbsDiff();
   CtrlSpeed();
   CtrlMotor();

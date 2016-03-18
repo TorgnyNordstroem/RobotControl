@@ -7,7 +7,7 @@ void CalcAbsDiff()
   }
 }
 
-void ConvAngleStep()
+void ConvAngleStepP2P()
 {
   for (int i = 0; i < 3; i++)
   {

@@ -2,50 +2,50 @@ void ModeKey()
 {
   switch (data2.z) {
     case 1:
-      AnglesTarget[0]++;
+      StepsTarget[0]++;
       break;
     case 2:
-      AnglesTarget[0]--;
+      StepsTarget[0]--;
       break;
     default:
       break;
   }
   switch (data2.x) {
     case 1:
-      AnglesTarget[1]++;
+      StepsTarget[1]++;
       break;
     case 2:
-      AnglesTarget[1]--;
+      StepsTarget[1]--;
       break;
     default:
       break;
   }
   switch (data2.y) {
     case 1:
-      AnglesTarget[2]++;
+      StepsTarget[2]++;
       break;
     case 2:
-      AnglesTarget[2]--;
+      StepsTarget[2]--;
       break;
     default:
       break;
   }
   switch (data2.claw_tilt) {
     case 1:
-      AnglesTarget[3]++;
+      AnglesTarget[3] += 0.2;
       break;
     case 2:
-      AnglesTarget[3]--;
+      AnglesTarget[3] -= 0.2;
       break;
     default:
       break;
   }
   switch (data2.claw_width) {
     case 1:
-      AnglesTarget[4]++;
+      AnglesTarget[4] += 0.2;
       break;
     case 2:
-      AnglesTarget[4]--;
+      AnglesTarget[4] -= 0.2;
       break;
     default:
       break;
@@ -87,7 +87,7 @@ void ModeStartUp()
 
   do
   {
-    ConvAngleStep();
+    ConvAngleStepP2P();
     StepsTarget[2] = StepsIs[2];
     CtrlMotor();
     delay(3);

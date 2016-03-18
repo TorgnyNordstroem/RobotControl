@@ -159,7 +159,7 @@ void Setup()
   time_received = millis();
 
   ModeP2P();
-  ConvAngleStep();
+  ConvAngleStepP2P();
   Serial.println("Setup finished");
 
   delay(20);
