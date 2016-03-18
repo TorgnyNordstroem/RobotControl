@@ -1,7 +1,5 @@
 #include <Servo.h>
 
-int i = 0;
-int Start = 0;
 const int PinLED[2] = {0, 2};
 const int PinSense[3] = {41, 33, 25};
 const int PinStepperStep[3] = {43, 35, 27};
@@ -54,18 +52,8 @@ int SpeedSteps[3] = {0, 0, 0};
 Servo ServoAngle; //Makes 'ServoAngle' an instance of Servo
 Servo ServoClaw; //Makes 'ServoClaw' an instance of Servo
 
-//Values for Conversion
-const int e1 = 100; //In mm
-const int e2 = 80; //In mm
-const int e3 = 100; //In mm
-const int e4 = 111; //In mm
-int Rabs;
-int Gamma;
-int Phi;
-int Rx;
-int Rz;
-
 int CycleTime = 7;
+int SensDetect[3] = {0, 0, 0};
 
 
 
@@ -177,22 +165,21 @@ void loop() {
   Serial.println("Is");
   Serial.println(StepsIs[0]);
   Serial.println(StepsIs[1]);
-  Serial.println(StepsIs[2]);/*
+  Serial.println(StepsIs[2]);
   Serial.println("Speed");
   Serial.println(Speed[0]);
   Serial.println(Speed[1]);
-  Serial.println(Speed[2]);*/
-  //Serial.println(mode);
-
+  Serial.println(Speed[2]);//*/
+  Serial.println(mode);
   Communication();
   
-  if (mode = 0)
+  if (mode == 0)
   {
     ModeP2P();
     ConvAngleStepP2P();
-    CycleTime = 10;
+    CycleTime = 7;
   }
-  else if (mode = 1)
+  else if (mode == 1)
   {
     ModeKey();
     CycleTime = 3;
