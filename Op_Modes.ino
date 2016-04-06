@@ -114,7 +114,6 @@ void ModeP2P()
   AnglesTarget[0] = double(data.alpha);
   AnglesTarget[1] = double(data.beta);
   AnglesTarget[2] = double(data.y);
-  //y = map(x, 1, 50, 50, 1);
   AnglesTarget[3] = double(data.claw_tilt) + 12.0;
   AnglesTarget[4] = map(double(data.claw_width), 0, 76, 175, 95);
 }

@@ -1,22 +1,11 @@
-
-
-unsigned long time_received = 0;
-
-
 //im setup am ende muss sein: und time_received=millis();
 
 void Communication()
 {
-  //update 11.02.2016: ich versuche bestimmte daten zu empfangen vom computer, sofern ich diese bekommen habe sende ich zureck und behandle mich als connected
-
-
   while (connected == false)
   {
     digitalWrite(PinLED[0], HIGH);
     digitalWrite(PinLED[1], HIGH);
-
-    /*if (ones == false) { Serial.println("LOOP:");  }*/
-
 
     if (udpServer.available())
     {
@@ -27,7 +16,6 @@ void Communication()
       for (int i = 0; i < n; i++)
       {
         //Serial.print(buffer[i]);
-
       }
       int i = 0;
       while (checked == false)
@@ -55,12 +43,6 @@ void Communication()
         Serial.println("Data not matching!");
       }
     }
-    /*if (ones == false)
-      {
-      Serial.println("Again:");
-      ones == true;
-      }*/
-
   }
   digitalWrite(PinLED[0], LOW);
   digitalWrite(PinLED[1], LOW);
@@ -73,21 +55,12 @@ void Communication()
     char buffer[UDP_READ_BUFFER_SIZE];
     byte bufferx[UDP_READ_BUFFER_SIZE];
     int n = udpServer.readData(buffer, UDP_READ_BUFFER_SIZE);  // n contains # of bytes read into buffer
-    //Serial.print("n: "); Serial.println(n);
-
-    /*
-        for (int i = 0; i < n; ++i) {
-          uint16_t c = buffer[i];
-          Serial.print("c: "); Serial.println(c);
-          // ... Do whatever you want with 'c' here ...
-        }
-    */
+    
     if (buffer[7] == 1 | buffer[7] == 2)
     {
       mode = buffer[7];
     }
 
-    //Serial.println(mode);
     if (mode == 2 & buffer[7] != 'r')
     {
       if (buffer[0] < 0)
@@ -156,13 +129,6 @@ void Communication()
       data.y = bufferx[4];
       data.claw_width = bufferx[5];
       data.claw_tilt = bufferx[6];
-      /*
-            Serial.println("###");
-            Serial.println(data.alpha);
-            Serial.println(data.beta);
-            Serial.println(data.y);
-            Serial.println(data.claw_width);
-            Serial.println(data.claw_tilt);*/
     }
     else if (buffer[0] == 'C' && buffer[1] == 'o' && buffer[2] == 'm' && buffer[3] == 'p' && buffer[4] == 'u' && buffer[5] == 't' && buffer[6] == 'e' && buffer[7] == 'r' && buffer[8] == '_' && buffer[9] == 'a' && buffer[10] == 'l' && buffer[11] == 'i' && buffer[12] == 'v' && buffer[13] == 'e')
     {
@@ -176,13 +142,6 @@ void Communication()
       data2.z = buffer[2];
       data2.claw_width = buffer[3];
       data2.claw_tilt = buffer[4];
-      /*
-            Serial.println("###");
-            Serial.println(data2.x);
-            Serial.println(data2.y);
-            Serial.println(data2.z);
-            Serial.println(data2.claw_width);
-            Serial.println(data2.claw_tilt);*/
     }
   }
 

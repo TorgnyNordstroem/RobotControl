@@ -134,6 +134,8 @@ IPAddress Empfangsadresse = IPAddress(192, 86, 43, 255);
 uint32_t IPAd = cc3000.IP2U32(192, 168, 1, 255);
 uint16_t port = 11000;
 
+unsigned long time_received = 0;
+
 // Definitions end
 
 
@@ -142,36 +144,6 @@ void setup() {
 }
 
 void loop() {
-  /*
-    // Debug info
-    Serial.println("");
-    Serial.println("");
-    Serial.println("Angles");
-    Serial.println(data2.z);
-    Serial.println(data2.x);
-    Serial.println(data2.y);
-    Serial.println(data2.claw_tilt);
-    Serial.println(data2.claw_width);/*
-    Serial.println(AnglesTarget[1]);
-    Serial.println(AnglesTarget[2]);
-    Serial.println(AnglesTarget[3]);
-    Serial.println(AnglesTarget[4]);
-    Serial.println("Angles");
-    Serial.println(AnglesTarget[0]);
-    Serial.println(AnglesTarget[1]);
-    Serial.println(AnglesTarget[2]);*//*
-  Serial.println("Target");
-  Serial.println(StepsTarget[0]);
-  Serial.println(StepsTarget[1]);
-  Serial.println(StepsTarget[2]);
-  Serial.println("Is");
-  Serial.println(StepsIs[0]);
-  Serial.println(StepsIs[1]);
-  Serial.println(StepsIs[2]);
-  Serial.println("Speed");
-  Serial.println(Speed[0]);
-  Serial.println(Speed[1]);
-  Serial.println(Speed[2]);//*/
   Communication();
 
   if (mode == 2)
