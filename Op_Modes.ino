@@ -46,6 +46,32 @@ void ModeKey()
         break;
     }
   }
+  else if (digitalRead(PinSense[0]) == HIGH)
+  {
+    switch (data2.z)
+    {
+      case 1:
+        StepsTarget[0] -= 2;
+        break;
+      case 2:
+        break;
+      default:
+        break;
+    }
+  }
+  else if (digitalRead(PinSense[1]) == HIGH)
+  {
+    switch (data2.x)
+    {
+      case 1:
+        break;
+      case 2:
+        StepsTarget[1] += 2;
+        break;
+      default:
+        break;
+    }
+  }
   else
   {
     switch (data2.z)
@@ -92,7 +118,6 @@ void ModeKey()
       AnglesTarget[3] -= 0.2;
       break;
     default:
-      AnglesTarget[3] = constrain(AnglesTarget[3], 0, 190);
       break;
   }
   switch (data2.claw_width)
@@ -104,9 +129,14 @@ void ModeKey()
       AnglesTarget[4] -= 0.2;
       break;
     default:
-      AnglesTarget[4] = constrain(AnglesTarget[4], 95, 175);
       break;
   }
+
+  StepsTarget[0] = constrain(StepsTarget[0], 1600, 3355);
+  StepsTarget[1] = constrain(StepsTarget[1], 1300, 3266);
+  StepsTarget[2] = constrain(StepsTarget[2], digitalRead(PinSense[2]) == HIGH, 3200);
+  AnglesTarget[3] = constrain(AnglesTarget[3], 0, 190);
+  AnglesTarget[4] = constrain(AnglesTarget[4], 95, 175);
 }
 
 void ModeP2P()
