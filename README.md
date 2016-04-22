@@ -1,6 +1,9 @@
 # RobotControl
 Arduino code used to control our robotic arm
 
+## RobotControl 1.1.0
+* Added buttons as end stops in key control mode
+
 ## RobotControl 1.0.0
 * Added internal breaks for key-control
 * Fixed mode selection
